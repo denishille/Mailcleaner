@@ -1,0 +1,5 @@
+# Auswertung des eigenen Postfachs — gehört nicht in die Versionsverwaltung.
+bericht.md
+regeln.json
+__pycache__/
+.DS_Store
