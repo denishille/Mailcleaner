@@ -80,14 +80,13 @@ function run(argv) {
     r => r.absender && r.ziel && String(r.ziel).trim() !== ''
   );
 
-  const ausgabe = [];
-  const sag = zeile => { ausgabe.push(zeile); console.log(zeile); };
+  const sag = zeile => console.log(zeile);
 
   if (regeln.length === 0) {
     sag('Keine Regel mit ausgefülltem "ziel" gefunden.');
     sag(`Trage in ${regelDatei} bei den Absendern, die du sortieren willst,`);
     sag('einen Zielordner ein — z. B. "ziel": "Archiv/Newsletter".');
-    return ausgabe.join('\n');
+    return;
   }
 
   sag(scharf ? '=== ES WIRD VERSCHOBEN ===' : '=== TROCKENLAUF (--apply zum Ausführen) ===');
@@ -179,5 +178,6 @@ function run(argv) {
     ? `Fertig. ${gesamtVerschoben} Nachrichten verschoben.`
     : `${gesamtTreffer} Nachrichten würden verschoben. Nichts verändert.`);
 
-  return ausgabe.join('\n');
+  // Kein Rueckgabewert: osascript wuerde ihn sonst noch einmal ausgeben,
+  // und die ganze Ausgabe erschiene doppelt.
 }
