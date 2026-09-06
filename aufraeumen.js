@@ -46,13 +46,26 @@ function sammlePostfaecher(behaelter, praefix, ergebnis) {
   return ergebnis;
 }
 
+// Der Papierkorb heisst je nach Anbieter und Sprache anders; Mail zeigt
+// "Papierkorb", GMX nennt den Ordner "Gelöscht". Alle Schreibweisen gelten.
+const PAPIERKORB = ['papierkorb', 'gelöscht', 'gelöschte objekte', 'trash', 'deleted messages'];
+
+// macOS liefert Umlaute in Ordnernamen oft zerlegt (a + Trema), die JSON-Datei
+// enthaelt sie zusammengesetzt. Ohne Normalisierung waere "Verträge" nie gleich.
+function schluessel(text) {
+  return String(text).normalize('NFC').toLowerCase();
+}
+
 function findePostfach(postfaecher, gesucht) {
-  const ziel = gesucht.toLowerCase();
-  return (
-    postfaecher.find(p => p.pfad.toLowerCase() === ziel) ||
-    postfaecher.find(p => p.name.toLowerCase() === ziel) ||
-    null
-  );
+  const ziel = schluessel(gesucht);
+  const kandidaten = PAPIERKORB.includes(ziel) ? PAPIERKORB : [ziel];
+  for (const name of kandidaten) {
+    const treffer =
+      postfaecher.find(p => schluessel(p.pfad) === name) ||
+      postfaecher.find(p => schluessel(p.name) === name);
+    if (treffer) return treffer;
+  }
+  return null;
 }
 
 function run(argv) {
