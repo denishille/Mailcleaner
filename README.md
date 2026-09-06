@@ -1,3 +1,15 @@
+# Aufräumen — Postfach und Notizen
+
+Zwei Werkzeugkästen nach demselben Muster: erst eine Bestandsaufnahme, die
+nur liest, dann eine Regeldatei, in der du die Struktur festlegst, dann ein
+Trockenlauf und erst danach das Verschieben. Nichts wird gelöscht, nichts
+verlässt den Mac.
+
+- **Postfach** (Apple Mail und GMX) — dieses Verzeichnis, Anleitung unten.
+- **Notizen** (Apple Notizen, Raptexte sortieren) — [`notizen/`](notizen/README.md).
+
+---
+
 # Postfach aufräumen — Apple Mail und GMX
 
 Zwei Skripte, um den Posteingang zu durchleuchten und nach eigenen Regeln zu

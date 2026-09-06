@@ -1,4 +1,5 @@
-# Auswertung des eigenen Postfachs — gehört nicht in die Versionsverwaltung.
+# Auswertung des eigenen Postfachs und der eigenen Notizen — gehört nicht in
+# die Versionsverwaltung. Gilt im Hauptordner wie in notizen/.
 bericht.md
 regeln.json
 __pycache__/
