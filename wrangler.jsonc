@@ -1,0 +1,10 @@
+{
+  // Cloudflare Worker "geobrudis": reine statische Seite aus dem Ordner geoquiz/.
+  // Deploy: npx wrangler deploy  (oder automatisch über Workers Builds bei Push auf main)
+  "name": "geobrudis",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./geoquiz",
+    "not_found_handling": "404-page"
+  }
+}

@@ -98,6 +98,8 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
 #guess-input:hover { background: var(--surface2); }
 #guess-input:focus { background: var(--bg); border-color: var(--text); }
 #guess-input:disabled { background: var(--surface); color: var(--muted); }
+#guess-input::-webkit-search-decoration, #guess-input::-webkit-search-cancel-button, #guess-input::-webkit-search-results-button { -webkit-appearance: none; display: none; }
+#guess-input:-webkit-autofill, #guess-input:-webkit-autofill:hover, #guess-input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0 1000px var(--surface) inset; -webkit-text-fill-color: var(--text); caret-color: var(--text); }
 .suggest { position: absolute; left: .6rem; right: .6rem; top: calc(100% + 6px); z-index: 20; list-style: none; margin: 0; padding: .4rem; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 32px rgba(0,0,0,.12); max-height: 300px; overflow-y: auto; }
 .suggest li { padding: .6rem .9rem; border-radius: 10px; display: flex; gap: .6rem; align-items: center; cursor: pointer; font-weight: 500; }
 .suggest li.sel, .suggest li:hover { background: var(--surface); }
