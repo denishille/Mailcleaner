@@ -78,6 +78,8 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
 .nav-btn:disabled { color: #c6c6c8; cursor: not-allowed; }
 .nav-pick { appearance: none; -webkit-appearance: none; border: 1.5px solid var(--line); background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right .9rem center; color: var(--text); padding: .5rem 2.2rem .5rem 1.1rem; border-radius: var(--pill); font-weight: 700; font-size: .95rem; cursor: pointer; min-width: 150px; font-variant-numeric: tabular-nums; transition: border-color .15s; }
 .nav-pick:hover, .nav-pick:focus { border-color: var(--text); outline: none; }
+.nav-filter { min-width: 0; background-color: var(--surface); border-color: transparent; font-weight: 600; }
+.nav { flex-wrap: wrap; }
 .chip-btn { border: 1.5px solid var(--line); background: var(--bg); color: var(--text); padding: .45rem 1.05rem; border-radius: var(--pill); font-weight: 600; font-size: .9rem; transition: border-color .15s, background .15s, color .15s; }
 .chip-btn:hover { border-color: var(--text); }
 .chip-btn.active { background: var(--text); border-color: var(--text); color: #fff; }
@@ -222,6 +224,10 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
   .tabs { order: 3; width: 100%; margin: 0; gap: 1.4rem; }
   .view-head { padding-top: 1.6rem; }
   .result { padding: 1.8rem 1.2rem; border-radius: 18px; }
+  .nav { gap: .3rem; }
+  .nav-btn { width: 36px; height: 36px; }
+  .nav-pick { min-width: 0; padding: .45rem 1.9rem .45rem .9rem; background-position: right .7rem center; }
+  .nav-pick:not(.nav-filter) { min-width: 108px; }
 
   /* GeoRankle: Flagge, Name und die 8 Kategorien nach dem Scrollen auf einen Blick */
   .rankle-status { margin-bottom: .8rem; }

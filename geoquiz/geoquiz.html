@@ -90,6 +90,8 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
 .nav-btn:disabled { color: #c6c6c8; cursor: not-allowed; }
 .nav-pick { appearance: none; -webkit-appearance: none; border: 1.5px solid var(--line); background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right .9rem center; color: var(--text); padding: .5rem 2.2rem .5rem 1.1rem; border-radius: var(--pill); font-weight: 700; font-size: .95rem; cursor: pointer; min-width: 150px; font-variant-numeric: tabular-nums; transition: border-color .15s; }
 .nav-pick:hover, .nav-pick:focus { border-color: var(--text); outline: none; }
+.nav-filter { min-width: 0; background-color: var(--surface); border-color: transparent; font-weight: 600; }
+.nav { flex-wrap: wrap; }
 .chip-btn { border: 1.5px solid var(--line); background: var(--bg); color: var(--text); padding: .45rem 1.05rem; border-radius: var(--pill); font-weight: 600; font-size: .9rem; transition: border-color .15s, background .15s, color .15s; }
 .chip-btn:hover { border-color: var(--text); }
 .chip-btn.active { background: var(--text); border-color: var(--text); color: #fff; }
@@ -234,6 +236,10 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
   .tabs { order: 3; width: 100%; margin: 0; gap: 1.4rem; }
   .view-head { padding-top: 1.6rem; }
   .result { padding: 1.8rem 1.2rem; border-radius: 18px; }
+  .nav { gap: .3rem; }
+  .nav-btn { width: 36px; height: 36px; }
+  .nav-pick { min-width: 0; padding: .45rem 1.9rem .45rem .9rem; background-position: right .7rem center; }
+  .nav-pick:not(.nav-filter) { min-width: 108px; }
 
   /* GeoRankle: Flagge, Name und die 8 Kategorien nach dem Scrollen auf einen Blick */
   .rankle-status { margin-bottom: .8rem; }
@@ -272,6 +278,11 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
         <p class="sub" id="daily-sub">Errate das geheime Land in 5 Versuchen. Alle spielen heute dasselbe Land.</p>
       </div>
       <div class="nav" aria-label="Rätsel-Navigation">
+        <select class="nav-pick nav-filter" id="daily-filter" aria-label="Filter">
+          <option value="all">Alle</option>
+          <option value="solved">Gelöst</option>
+          <option value="open">Ungelöst</option>
+        </select>
         <button class="nav-btn" id="daily-prev" aria-label="Vorheriges Rätsel">‹</button>
         <select class="nav-pick" id="daily-pick" aria-label="Rätsel wählen"></select>
         <button class="nav-btn" id="daily-next" aria-label="Nächstes Rätsel">›</button>
@@ -303,6 +314,11 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
         <p class="sub">Wähle für jedes Land die Kategorie, in der es weltweit am besten abschneidet.</p>
       </div>
       <div class="nav" aria-label="Rätsel-Navigation">
+        <select class="nav-pick nav-filter" id="rankle-filter" aria-label="Filter">
+          <option value="all">Alle</option>
+          <option value="solved">Gelöst</option>
+          <option value="open">Ungelöst</option>
+        </select>
         <button class="nav-btn" id="rankle-prev" aria-label="Vorheriges Rätsel">‹</button>
         <select class="nav-pick" id="rankle-pick" aria-label="Rätsel wählen"></select>
         <button class="nav-btn" id="rankle-next" aria-label="Nächstes Rätsel">›</button>
@@ -522,14 +538,32 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
   function saveDaily() {
     store.set(dailyKey(daily.num), { day: daily.day, secret: daily.secret.iso3, guesses: daily.guesses, done: daily.done, won: daily.won });
   }
-  function fillPicker(sel, current, key) {
+  // Filter: alle / gelöst / ungelöst. Liefert die passenden Rätselnummern absteigend.
+  const solvedState = (key, n) => { const st = store.get(key(n), null); return !!(st && st.done && st.won); };
+  function puzzleList(key, filter) {
     const max = maxPuzzle();
-    sel.innerHTML = Array.from({ length: max }, (_, i) => max - i).map(n =>
-      `<option value="${n}"${n === current ? ' selected' : ''}>#${n}</option>`).join('');
+    const all = Array.from({ length: max }, (_, i) => max - i);
+    if (filter === 'solved') return all.filter(n => solvedState(key, n));
+    if (filter === 'open') return all.filter(n => !solvedState(key, n));
+    return all;
   }
-  $('#daily-prev').addEventListener('click', () => loadDaily(daily.num - 1));
-  $('#daily-next').addEventListener('click', () => loadDaily(daily.num + 1));
+  function fillPicker(sel, current, key, filter) {
+    const list = puzzleList(key, filter);
+    if (!list.includes(current)) list.push(current), list.sort((a, b) => b - a);
+    sel.innerHTML = list.map(n => `<option value="${n}"${n === current ? ' selected' : ''}>#${n}</option>`).join('');
+    return list;
+  }
+  // Nachbar in der gefilterten Liste (Liste ist absteigend)
+  const neighbour = (list, current, dir) => dir < 0
+    ? list.filter(n => n < current)[0]
+    : list.filter(n => n > current).slice(-1)[0];
+  const filters = { daily: store.get('dailyFilter', 'all'), rankle: store.get('rankleFilter', 'all') };
+  $('#daily-filter').value = filters.daily; $('#rankle-filter').value = filters.rankle;
+
+  $('#daily-prev').addEventListener('click', () => { const n = neighbour(puzzleList(dailyKey, filters.daily), daily.num, -1); if (n) loadDaily(n); });
+  $('#daily-next').addEventListener('click', () => { const n = neighbour(puzzleList(dailyKey, filters.daily), daily.num, 1); if (n) loadDaily(n); });
   $('#daily-pick').addEventListener('change', e => loadDaily(+e.target.value));
+  $('#daily-filter').addEventListener('change', e => { filters.daily = e.target.value; store.set('dailyFilter', filters.daily); renderDaily(); });
 
   // ---- Hinweise
   const HINTS = [
@@ -615,9 +649,9 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
     $('#daily-sub').textContent = isToday
       ? 'Errate das geheime Land in 5 Versuchen. Alle spielen heute dasselbe Land.'
       : 'Errate das geheime Land in 5 Versuchen. Jedes Rätsel hat sein eigenes Land.';
-    fillPicker($('#daily-pick'), daily.num, dailyKey);
-    $('#daily-prev').disabled = daily.num <= 1;
-    $('#daily-next').disabled = isToday;
+    const dl = fillPicker($('#daily-pick'), daily.num, dailyKey, filters.daily);
+    $('#daily-prev').disabled = !neighbour(dl, daily.num, -1);
+    $('#daily-next').disabled = !neighbour(dl, daily.num, 1);
     const s = daily.secret;
     $('#guesses').innerHTML = daily.guesses.map(iso => guessRowHtml(BY_ISO[iso], evalGuess(BY_ISO[iso], s))).join('');
     const input = $('#guess-input'), btn = $('#guess-btn');
@@ -818,9 +852,10 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
   function saveRankle() {
     store.set(rankleKey(rankle.num), { day: rankle.day, countries: rankle.countries, cats: rankle.cats, picks: rankle.picks, done: rankle.picks.length >= ROUNDS, won: rankle.picks.length >= ROUNDS });
   }
-  $('#rankle-prev').addEventListener('click', () => loadRankle(rankle.num - 1));
-  $('#rankle-next').addEventListener('click', () => loadRankle(rankle.num + 1));
+  $('#rankle-prev').addEventListener('click', () => { const n = neighbour(puzzleList(rankleKey, filters.rankle), rankle.num, -1); if (n) loadRankle(n); });
+  $('#rankle-next').addEventListener('click', () => { const n = neighbour(puzzleList(rankleKey, filters.rankle), rankle.num, 1); if (n) loadRankle(n); });
   $('#rankle-pick').addEventListener('change', e => loadRankle(+e.target.value));
+  $('#rankle-filter').addEventListener('change', e => { filters.rankle = e.target.value; store.set('rankleFilter', filters.rankle); renderRankle(); });
 
   function points(chosen, best) {
     if (chosen === best) return 100;
@@ -874,9 +909,9 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
   function renderRankle() {
     const isToday = rankle.num === maxPuzzle();
     $('#rankle-num').textContent = 'Rätsel #' + rankle.num;
-    fillPicker($('#rankle-pick'), rankle.num, rankleKey);
-    $('#rankle-prev').disabled = rankle.num <= 1;
-    $('#rankle-next').disabled = isToday;
+    const rl = fillPicker($('#rankle-pick'), rankle.num, rankleKey, filters.rankle);
+    $('#rankle-prev').disabled = !neighbour(rl, rankle.num, -1);
+    $('#rankle-next').disabled = !neighbour(rl, rankle.num, 1);
     $('#rankle-score').textContent = total();
     $('#rankle-rounds').innerHTML = Array.from({ length: ROUNDS }, (_, i) => {
       const p = rankle.picks[i];

@@ -174,14 +174,32 @@
   function saveDaily() {
     store.set(dailyKey(daily.num), { day: daily.day, secret: daily.secret.iso3, guesses: daily.guesses, done: daily.done, won: daily.won });
   }
-  function fillPicker(sel, current, key) {
+  // Filter: alle / gelöst / ungelöst. Liefert die passenden Rätselnummern absteigend.
+  const solvedState = (key, n) => { const st = store.get(key(n), null); return !!(st && st.done && st.won); };
+  function puzzleList(key, filter) {
     const max = maxPuzzle();
-    sel.innerHTML = Array.from({ length: max }, (_, i) => max - i).map(n =>
-      `<option value="${n}"${n === current ? ' selected' : ''}>#${n}</option>`).join('');
+    const all = Array.from({ length: max }, (_, i) => max - i);
+    if (filter === 'solved') return all.filter(n => solvedState(key, n));
+    if (filter === 'open') return all.filter(n => !solvedState(key, n));
+    return all;
   }
-  $('#daily-prev').addEventListener('click', () => loadDaily(daily.num - 1));
-  $('#daily-next').addEventListener('click', () => loadDaily(daily.num + 1));
+  function fillPicker(sel, current, key, filter) {
+    const list = puzzleList(key, filter);
+    if (!list.includes(current)) list.push(current), list.sort((a, b) => b - a);
+    sel.innerHTML = list.map(n => `<option value="${n}"${n === current ? ' selected' : ''}>#${n}</option>`).join('');
+    return list;
+  }
+  // Nachbar in der gefilterten Liste (Liste ist absteigend)
+  const neighbour = (list, current, dir) => dir < 0
+    ? list.filter(n => n < current)[0]
+    : list.filter(n => n > current).slice(-1)[0];
+  const filters = { daily: store.get('dailyFilter', 'all'), rankle: store.get('rankleFilter', 'all') };
+  $('#daily-filter').value = filters.daily; $('#rankle-filter').value = filters.rankle;
+
+  $('#daily-prev').addEventListener('click', () => { const n = neighbour(puzzleList(dailyKey, filters.daily), daily.num, -1); if (n) loadDaily(n); });
+  $('#daily-next').addEventListener('click', () => { const n = neighbour(puzzleList(dailyKey, filters.daily), daily.num, 1); if (n) loadDaily(n); });
   $('#daily-pick').addEventListener('change', e => loadDaily(+e.target.value));
+  $('#daily-filter').addEventListener('change', e => { filters.daily = e.target.value; store.set('dailyFilter', filters.daily); renderDaily(); });
 
   // ---- Hinweise
   const HINTS = [
@@ -267,9 +285,9 @@
     $('#daily-sub').textContent = isToday
       ? 'Errate das geheime Land in 5 Versuchen. Alle spielen heute dasselbe Land.'
       : 'Errate das geheime Land in 5 Versuchen. Jedes Rätsel hat sein eigenes Land.';
-    fillPicker($('#daily-pick'), daily.num, dailyKey);
-    $('#daily-prev').disabled = daily.num <= 1;
-    $('#daily-next').disabled = isToday;
+    const dl = fillPicker($('#daily-pick'), daily.num, dailyKey, filters.daily);
+    $('#daily-prev').disabled = !neighbour(dl, daily.num, -1);
+    $('#daily-next').disabled = !neighbour(dl, daily.num, 1);
     const s = daily.secret;
     $('#guesses').innerHTML = daily.guesses.map(iso => guessRowHtml(BY_ISO[iso], evalGuess(BY_ISO[iso], s))).join('');
     const input = $('#guess-input'), btn = $('#guess-btn');
@@ -470,9 +488,10 @@
   function saveRankle() {
     store.set(rankleKey(rankle.num), { day: rankle.day, countries: rankle.countries, cats: rankle.cats, picks: rankle.picks, done: rankle.picks.length >= ROUNDS, won: rankle.picks.length >= ROUNDS });
   }
-  $('#rankle-prev').addEventListener('click', () => loadRankle(rankle.num - 1));
-  $('#rankle-next').addEventListener('click', () => loadRankle(rankle.num + 1));
+  $('#rankle-prev').addEventListener('click', () => { const n = neighbour(puzzleList(rankleKey, filters.rankle), rankle.num, -1); if (n) loadRankle(n); });
+  $('#rankle-next').addEventListener('click', () => { const n = neighbour(puzzleList(rankleKey, filters.rankle), rankle.num, 1); if (n) loadRankle(n); });
   $('#rankle-pick').addEventListener('change', e => loadRankle(+e.target.value));
+  $('#rankle-filter').addEventListener('change', e => { filters.rankle = e.target.value; store.set('rankleFilter', filters.rankle); renderRankle(); });
 
   function points(chosen, best) {
     if (chosen === best) return 100;
@@ -526,9 +545,9 @@
   function renderRankle() {
     const isToday = rankle.num === maxPuzzle();
     $('#rankle-num').textContent = 'Rätsel #' + rankle.num;
-    fillPicker($('#rankle-pick'), rankle.num, rankleKey);
-    $('#rankle-prev').disabled = rankle.num <= 1;
-    $('#rankle-next').disabled = isToday;
+    const rl = fillPicker($('#rankle-pick'), rankle.num, rankleKey, filters.rankle);
+    $('#rankle-prev').disabled = !neighbour(rl, rankle.num, -1);
+    $('#rankle-next').disabled = !neighbour(rl, rankle.num, 1);
     $('#rankle-score').textContent = total();
     $('#rankle-rounds').innerHTML = Array.from({ length: ROUNDS }, (_, i) => {
       const p = rankle.picks[i];
