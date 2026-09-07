@@ -279,7 +279,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
 
     <form id="guess-form" class="guess-form" autocomplete="off" role="search">
       <div class="combo">
-        <input id="guess-input" type="search" name="q" placeholder="Land eingeben …" aria-label="Land" role="combobox" aria-autocomplete="list" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" data-lpignore="true" data-1p-ignore data-form-type="other">
+        <input id="guess-input" type="search" name="q" placeholder="Tipp eingeben …" aria-label="Tipp" role="combobox" aria-autocomplete="list" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" data-lpignore="true" data-1p-ignore data-form-type="other">
         <ul id="suggest" class="suggest" hidden></ul>
       </div>
       <button type="submit" class="primary" id="guess-btn">Raten</button>
@@ -622,7 +622,7 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
     const input = $('#guess-input'), btn = $('#guess-btn');
     input.disabled = daily.done; btn.disabled = daily.done;
     input.value = '';
-    input.placeholder = daily.done ? (daily.won ? 'Gelöst' : 'Nicht gelöst') : 'Land eingeben …';
+    input.placeholder = daily.done ? (daily.won ? 'Gelöst' : 'Nicht gelöst') : 'Tipp eingeben …';
     renderDailyResult();
   }
 

@@ -275,7 +275,7 @@
     const input = $('#guess-input'), btn = $('#guess-btn');
     input.disabled = daily.done; btn.disabled = daily.done;
     input.value = '';
-    input.placeholder = daily.done ? (daily.won ? 'Gelöst' : 'Nicht gelöst') : 'Land eingeben …';
+    input.placeholder = daily.done ? (daily.won ? 'Gelöst' : 'Nicht gelöst') : 'Tipp eingeben …';
     renderDailyResult();
   }
 
