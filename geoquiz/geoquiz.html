@@ -760,28 +760,56 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
   // =================================================================
   const RANKLE_POOL = COUNTRIES.filter(c => c.stats.pop >= MIN_POP && Object.keys(c.ranks || {}).length >= 20);
 
-  const rankle = { num: 0, day: 0, countries: [], round: 0, picks: [], used: [], revealed: false };
+  const rankle = { num: 0, day: 0, countries: [], cats: [], round: 0, picks: [], used: [], revealed: false };
   const rankleKey = n => 'rankle.' + n;
 
-  function pickCountries(seed) {
+  // 8 Länder + 8 Kategorien, sodass jedes Land unter den 8 Kategorien eine
+  // eigene beste hat. So ist die Bestpunktzahl immer erreichbar.
+  function buildRankle(seed) {
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const rng = mulberry32(seed + attempt * 7919);
+      const picked = [];
+      for (const c of shuffled(RANKLE_POOL, rng)) {
+        if (picked.length >= ROUNDS) break;
+        const used = new Set(picked.map(p => p.cat));
+        let best = null;
+        for (const cat of CATS) {
+          if (used.has(cat.key)) continue;
+          const r = c.ranks[cat.key];
+          if (r != null && (!best || r < best.rank)) best = { cat: cat.key, rank: r };
+        }
+        if (!best) continue;
+        // Keine bereits gewählte Kategorie darf für das neue Land besser sein …
+        if (picked.some(p => c.ranks[p.cat] == null || c.ranks[p.cat] < best.rank)) continue;
+        // … und die neue Kategorie darf für kein bisheriges Land besser sein als dessen eigene.
+        if (picked.some(p => { const r = BY_ISO[p.iso3].ranks[best.cat]; return r == null || r < BY_ISO[p.iso3].ranks[p.cat]; })) continue;
+        picked.push({ iso3: c.iso3, cat: best.cat });
+      }
+      if (picked.length === ROUNDS) {
+        return { countries: picked.map(p => p.iso3), cats: shuffled(picked.map(p => p.cat), rng) };
+      }
+    }
+    // Notnagel (sollte mit 196 Ländern und 24 Kategorien nie greifen)
     const rng = mulberry32(seed);
-    return shuffled(RANKLE_POOL, rng).slice(0, ROUNDS).map(c => c.iso3);
+    return { countries: shuffled(RANKLE_POOL, rng).slice(0, ROUNDS).map(c => c.iso3), cats: shuffled(CATS, rng).slice(0, ROUNDS).map(c => c.key) };
   }
+  const rankleCats = () => rankle.cats.map(k => CAT_BY_KEY[k]);
   function loadRankle(n) {
     n = clampPuzzle(n);
     rankle.num = n; rankle.day = n - 1;
-    rankle.countries = pickCountries(rankle.day * 1000003 + 42);
+    const built = buildRankle(rankle.day * 1000003 + 42);
+    rankle.countries = built.countries; rankle.cats = built.cats;
     rankle.round = 0; rankle.picks = []; rankle.used = []; rankle.revealed = false;
     let saved = store.get(rankleKey(n), null);
     if (!saved) { const old = store.get('rankle', null); if (old && old.day === rankle.day) saved = old; }
-    if (saved && JSON.stringify(saved.countries) === JSON.stringify(rankle.countries)) {
+    if (saved && JSON.stringify(saved.countries) === JSON.stringify(rankle.countries) && JSON.stringify(saved.cats) === JSON.stringify(rankle.cats)) {
       rankle.picks = saved.picks; rankle.used = saved.picks.map(p => p.cat);
       rankle.round = saved.picks.length; rankle.revealed = false;
     }
     renderRankle();
   }
   function saveRankle() {
-    store.set(rankleKey(rankle.num), { day: rankle.day, countries: rankle.countries, picks: rankle.picks, done: rankle.picks.length >= ROUNDS, won: rankle.picks.length >= ROUNDS });
+    store.set(rankleKey(rankle.num), { day: rankle.day, countries: rankle.countries, cats: rankle.cats, picks: rankle.picks, done: rankle.picks.length >= ROUNDS, won: rankle.picks.length >= ROUNDS });
   }
   $('#rankle-prev').addEventListener('click', () => loadRankle(rankle.num - 1));
   $('#rankle-next').addEventListener('click', () => loadRankle(rankle.num + 1));
@@ -797,7 +825,7 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
 
   function bestAvailable(c) {
     let best = null;
-    for (const cat of CATS) {
+    for (const cat of rankleCats()) {
       if (rankle.used.includes(cat.key)) continue;
       const r = c.ranks && c.ranks[cat.key];
       if (r != null && (best === null || r < best.rank)) best = { cat: cat.key, rank: r };
@@ -863,7 +891,7 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
     $('#rankle-country-sub').textContent = `${c.continent} · Hauptstadt ${c.capital} · Runde ${rankle.round + 1} von ${ROUNDS}`;
 
     const pick = rankle.revealed ? rankle.picks[rankle.picks.length - 1] : null;
-    $('#cat-grid').innerHTML = CATS.map(cat => {
+    $('#cat-grid').innerHTML = rankleCats().map(cat => {
       const used = rankle.used.includes(cat.key) && !(pick && pick.cat === cat.key);
       const noData = c.ranks[cat.key] == null;
       const dis = used || noData || rankle.revealed;
@@ -875,7 +903,7 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
 
     const rev = $('#rankle-reveal');
     if (!pick) { rev.hidden = true; return; }
-    const rows = CATS.map(cat => ({ cat, rank: c.ranks[cat.key], v: c.stats[cat.key] }))
+    const rows = rankleCats().map(cat => ({ cat, rank: c.ranks[cat.key], v: c.stats[cat.key] }))
       .sort((a, b) => (a.rank == null) - (b.rank == null) || a.rank - b.rank);
     const catName = k => CAT_BY_KEY[k].name;
     const msg = pick.pts === 100
