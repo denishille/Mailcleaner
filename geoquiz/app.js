@@ -193,15 +193,29 @@
   // ---- Hinweise
   const HINTS = [
     { key: 'continent', lbl: 'Kontinent' },
+    { key: 'distance', lbl: 'Entfernung' },
     { key: 'pop', lbl: 'Einwohner' },
     { key: 'area', lbl: 'Fläche' },
     { key: 'gdppc', lbl: 'BIP/Kopf' },
     { key: 'borders', lbl: 'Nachbarn' },
     { key: 'coast', lbl: 'Küste' },
-    { key: 'colors', lbl: 'Flagge' },
-    { key: 'languages', lbl: 'Sprachen' },
     { key: 'currency', lbl: 'Währung' },
+    { key: 'colors', lbl: 'Flagge', wide: true },
+    { key: 'languages', lbl: 'Sprachen', wide: true },
   ];
+  const DIR_ARROWS = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖'];
+  function geo(a, b) {
+    // Luftlinie (Haversine) und Kompassrichtung von a nach b
+    const R = 6371, toRad = d => d * Math.PI / 180;
+    const [la1, lo1] = a.map(toRad), [la2, lo2] = b.map(toRad);
+    const dLat = la2 - la1, dLon = lo2 - lo1;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLon / 2) ** 2;
+    const km = 2 * R * Math.asin(Math.sqrt(h));
+    const y = Math.sin(dLon) * Math.cos(la2);
+    const x = Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dLon);
+    const bearing = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+    return { km, arrow: DIR_ARROWS[Math.round(bearing / 45) % 8] };
+  }
   const COLOR_DE = { red: 'Rot', white: 'Weiß', blue: 'Blau', green: 'Grün', yellow: 'Gelb', black: 'Schwarz', orange: 'Orange', purple: 'Lila' };
   const COLOR_HEX = { red: '#d92b2b', white: '#f4f4f4', blue: '#2b5fd9', green: '#2a9d4a', yellow: '#f2c320', black: '#111', orange: '#f28b1e', purple: '#8a3fc9' };
 
@@ -225,6 +239,10 @@
   function evalGuess(g, s) {
     const out = {};
     out.continent = { cls: g.continent === s.continent ? 'ok' : 'miss', html: esc(g.continent) };
+    const d = geo(g.latlng, s.latlng);
+    out.distance = g.iso3 === s.iso3
+      ? { cls: 'ok', html: '0 km', arrow: '✓' }
+      : { cls: d.km <= 2000 ? 'near' : 'miss', html: nf0.format(Math.round(d.km / 10) * 10) + ' km', arrow: d.arrow };
     let c = numCompare(g.stats.pop, s.stats.pop);
     out.pop = { cls: c.cls, html: esc(fmtCompact(g.stats.pop)), arrow: c.arrow };
     c = numCompare(g.stats.area, s.stats.area);
@@ -250,7 +268,7 @@
       <div class="guess-title"><span class="mini-flag">${flagSvg(g)}</span>${esc(g.name)} <span class="cap">${esc(g.capital)}</span></div>
       <div class="cells">${HINTS.map(h => {
         const e = ev[h.key];
-        return `<div class="cell ${e.cls}"><div class="lbl">${h.lbl}</div><div class="val">${e.html}</div>${e.arrow ? `<div class="arrow">${e.arrow}</div>` : ''}</div>`;
+        return `<div class="cell ${e.cls}${h.wide ? ' wide' : ''}"><div class="lbl">${h.lbl}</div><div class="val">${e.html}</div>${e.arrow ? `<div class="arrow">${e.arrow}</div>` : ''}</div>`;
       }).join('')}</div>
     </div>`;
   }
@@ -375,7 +393,7 @@
   function renderSuggest() {
     if (!sugItems.length) { suggest.hidden = true; return; }
     suggest.innerHTML = sugItems.map((m, i) =>
-      `<li data-i="${i}" class="${i === sugIdx ? 'sel' : ''}"><span>${m.c.emoji}</span><span>${esc(m.c.name)}</span>${m.via && norm(m.via) !== norm(m.c.name) ? `<span class="alias">${esc(m.via)}</span>` : ''}</li>`).join('');
+      `<li data-i="${i}" class="${i === sugIdx ? 'sel' : ''}"><span>${esc(m.c.name)}</span>${m.via && norm(m.via) !== norm(m.c.name) ? `<span class="alias">${esc(m.via)}</span>` : ''}</li>`).join('');
     suggest.hidden = false;
   }
   input.addEventListener('input', () => {

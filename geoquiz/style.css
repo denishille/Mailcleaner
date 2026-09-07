@@ -88,7 +88,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
 .guess-title .mini-flag { width: 30px; height: 22px; border-radius: 4px; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,.15); flex-shrink: 0; }
 .guess-title .mini-flag svg { width: 100%; height: 100%; display: block; }
 .guess-title .cap { color: var(--muted); font-weight: 400; font-size: .9em; }
-.cells { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: .35rem; }
+.cells { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .35rem; }
+.cell.wide { grid-column: span 2; }
 .cell { border-radius: 10px; padding: .4rem .3rem; min-height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: var(--miss); font-size: .78rem; overflow: hidden; }
 .cell .lbl { font-size: .62rem; text-transform: uppercase; letter-spacing: .03em; opacity: .75; margin-bottom: .15rem; }
 .cell .val { font-weight: 700; line-height: 1.2; word-break: break-word; }
@@ -101,7 +102,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
 .chip.hit { background: rgba(255,255,255,.9); color: #0b3d22; }
 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 3px; vertical-align: -1px; border: 1px solid rgba(255,255,255,.5); }
 @media (max-width: 720px) {
-  .cells { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cells { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .cell { min-height: 58px; }
 }
 
