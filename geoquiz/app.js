@@ -297,7 +297,6 @@
         <span>${fmtCompact(s.stats.pop)} Einwohner</span><span>${nf0.format(s.stats.area)} km²</span>
         ${s.stats.gdppc != null ? `<span>BIP/Kopf ${nf0.format(s.stats.gdppc)} $</span>` : ''}
       </div>
-      <pre>${esc(shareText.replace(shareUrl(), ''))}</pre>
       <div class="actions">
         <button class="primary" id="btn-share-daily">Ergebnis teilen</button>
         ${daily.num > 1 ? `<button class="ghost" id="btn-daily-prev">‹ Rätsel #${daily.num - 1}</button>` : ''}
@@ -617,7 +616,6 @@
           <div class="rs-body"><strong>${i + 1}. ${esc(c.name)}</strong>${esc(CAT_BY_KEY[p.cat].name)} #${p.rank}${p.pts < 100 ? `<br><span class="muted">Beste: ${esc(CAT_BY_KEY[p.bestCat].name)} #${p.bestRank}</span>` : ''}</div>
           <span class="rs-pts ${ptsClass(p.pts)}">${p.pts}</span></div>`;
       }).join('')}</div>
-      <pre>${esc(share.replace(shareUrl(), ''))}</pre>
       <div class="actions">
         <button class="primary" id="btn-share-rankle">Ergebnis teilen</button>
         ${rankle.num > 1 ? `<button class="ghost" id="btn-rankle-prev">‹ Rätsel #${rankle.num - 1}</button>` : ''}
