@@ -131,7 +131,7 @@ CATEGORIES = [
     ("internet", "Meiste Internet\u00adnutzer", "%", "dec1", "Anteil der Bevölkerung, Rang 1 = am meisten"),
     ("infl", "Höchste Inflation", "%", "dec1", "Verbraucherpreise, Rang 1 = am höchsten"),
     ("unemp", "Höchste Arbeits\u00adlosigkeit", "%", "dec1", "Rang 1 = am höchsten"),
-    ("mil", "Höchste Militär\u00adausgaben", "% BIP", "dec1", "Anteil am BIP, Rang 1 = am höchsten"),
+    ("mil", "Höchste Militär\u00adausgaben", "$", "money", "Ausgaben in US-Dollar pro Jahr (Anteil am BIP mal BIP), Rang 1 = am meisten"),
     ("alc", "Höchster Alkohol\u00adkonsum", "l/Kopf", "dec2", "Liter reiner Alkohol pro Kopf und Jahr, Rang 1 = am meisten"),
 ]
 
@@ -212,7 +212,8 @@ def parse_factbook(d):
     s["infl"] = num(latest(get(d, E, "Inflation rate (consumer prices)")))
     s["unemp"] = num(latest(get(d, E, "Unemployment rate")))
     s["exports"] = num(latest(get(d, E, "Exports")))
-    s["mil"] = num(latest(get(d, "Military and Security", "Military expenditures")))
+    mil_pct = num(latest(get(d, "Military and Security", "Military expenditures")))
+    s["mil"] = round(mil_pct / 100 * s["gdp"]) if mil_pct is not None and s.get("gdp") else None
     return {k: v for k, v in s.items() if v is not None}
 
 
