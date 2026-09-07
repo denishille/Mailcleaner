@@ -176,16 +176,10 @@
   function saveDaily() {
     store.set(dailyKey(daily.num), { day: daily.day, secret: daily.secret.iso3, guesses: daily.guesses, done: daily.done, won: daily.won });
   }
-  function puzzleStatus(key, n) {
-    const s = store.get(key(n), null);
-    return s && s.done ? (s.won ? '✓' : '✗') : (s && (s.guesses || s.picks || []).length ? '…' : '');
-  }
   function fillPicker(sel, current, key) {
     const max = maxPuzzle();
-    sel.innerHTML = Array.from({ length: max }, (_, i) => max - i).map(n => {
-      const st = puzzleStatus(key, n);
-      return `<option value="${n}"${n === current ? ' selected' : ''}>#${n}${n === max ? ' · heute' : ''}${st ? ' ' + st : ''}</option>`;
-    }).join('');
+    sel.innerHTML = Array.from({ length: max }, (_, i) => max - i).map(n =>
+      `<option value="${n}"${n === current ? ' selected' : ''}>#${n}</option>`).join('');
   }
   $('#daily-prev').addEventListener('click', () => loadDaily(daily.num - 1));
   $('#daily-next').addEventListener('click', () => loadDaily(daily.num + 1));
