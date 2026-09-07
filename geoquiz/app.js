@@ -251,7 +251,7 @@
     out.gdppc = { cls: c.cls, html: g.stats.gdppc != null ? esc(nf0.format(g.stats.gdppc)) + ' $' : '?', arrow: c.arrow };
     c = numCompare(g.borders.length, s.borders.length, true);
     out.borders = { cls: c.cls, html: String(g.borders.length), arrow: c.arrow };
-    out.coast = { cls: g.landlocked === s.landlocked ? 'ok' : 'miss', html: g.landlocked ? 'Binnenstaat' : 'Küste' };
+    out.coast = { cls: g.landlocked === s.landlocked ? 'ok' : 'miss', html: g.landlocked ? 'Binnen\u00adstaat' : 'Küste' };
     c = setCompare(g.colors, s.colors);
     out.colors = { cls: c.cls, html: '<div class="chips">' + g.colors.map(col =>
       `<span class="chip${c.shared.includes(col) ? ' hit' : ''}"><i class="dot" style="background:${COLOR_HEX[col]}"></i>${COLOR_DE[col] || col}</span>`).join('') + '</div>' };
@@ -284,7 +284,7 @@
   function renderDaily() {
     const isDaily = daily.mode === 'daily';
     $$('[data-dmode]').forEach(b => b.classList.toggle('active', b.dataset.dmode === daily.mode));
-    $('#daily-num').textContent = isDaily ? '#' + (daily.day + 1) : '· Übung';
+    $('#daily-num').textContent = isDaily ? 'Rätsel #' + (daily.day + 1) : 'Übungsmodus';
     $('#daily-sub').textContent = isDaily
       ? 'Errate das geheime Land in 5 Versuchen. Alle spielen heute dasselbe Land.'
       : 'Übungsmodus: zufälliges Land, ohne Serie.';
@@ -510,13 +510,12 @@
   function renderRankle() {
     const isDaily = rankle.mode === 'daily';
     $$('[data-rmode]').forEach(b => b.classList.toggle('active', b.dataset.rmode === rankle.mode));
-    $('#rankle-num').textContent = isDaily ? '#' + (rankle.day + 1) : '· Zufall';
+    $('#rankle-num').textContent = isDaily ? 'Tagesspiel #' + (rankle.day + 1) : 'Zufallsspiel';
     $('#rankle-score').textContent = total();
     $('#rankle-rounds').innerHTML = Array.from({ length: ROUNDS }, (_, i) => {
       const p = rankle.picks[i];
       const cls = p ? 'done ' + ptsClass(p.pts) : (i === rankle.round ? 'cur' : '');
-      const bg = p ? `style="background:${{ g: 'var(--ok)', y: 'var(--near)', r: 'var(--danger)' }[ptsClass(p.pts)]}"` : '';
-      return `<div class="round-dot ${cls}" ${bg} title="Runde ${i + 1}">${p ? p.pts : i + 1}</div>`;
+      return `<div class="round-dot ${cls}" title="Runde ${i + 1}">${p ? p.pts : i + 1}</div>`;
     }).join('');
 
     const finished = rankle.round >= ROUNDS;
@@ -583,7 +582,7 @@
         const c = BY_ISO[p.iso3];
         return `<div class="rs"><span class="mini-flag">${flagSvg(c)}</span>
           <div class="rs-body"><strong>${i + 1}. ${esc(c.name)}</strong>${esc(CAT_BY_KEY[p.cat].name)} #${p.rank}${p.pts < 100 ? `<br><span class="muted">Beste: ${esc(CAT_BY_KEY[p.bestCat].name)} #${p.bestRank}</span>` : ''}</div>
-          <span class="rs-pts" style="color:${{ g: 'var(--ok)', y: 'var(--near)', r: 'var(--danger)' }[ptsClass(p.pts)]}">${p.pts}</span></div>`;
+          <span class="rs-pts ${ptsClass(p.pts)}">${p.pts}</span></div>`;
       }).join('')}</div>
       <pre>${esc(share.replace(shareUrl(), ''))}</pre>
       <div class="actions">
@@ -638,7 +637,6 @@
   loadDaily();
   newRankle('daily');
   setView(location.hash === '#rankle' ? 'rankle' : 'daily');
-  if (!store.get('seenHelp', false)) { openModal('#modal-help'); store.set('seenHelp', true); }
 
   // Tageswechsel bei offener Seite erkennen
   setInterval(() => {
