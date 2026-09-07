@@ -556,6 +556,49 @@
     $$('#cat-grid .cat').forEach(b => b.addEventListener('click', () => chooseCategory(b.dataset.cat)));
   }
 
+  // Langes Drücken auf eine Kategorie zeigt die Definition
+  (() => {
+    const grid = $('#cat-grid');
+    const tip = document.createElement('div');
+    tip.className = 'cat-tip'; tip.hidden = true; document.body.appendChild(tip);
+    let timer = null, longPressed = false, startX = 0, startY = 0, hideTimer = null;
+    function showTip(btn) {
+      const cat = CAT_BY_KEY[btn.dataset.cat];
+      if (!cat) return;
+      tip.textContent = cat.desc; tip.hidden = false;
+      const r = btn.getBoundingClientRect();
+      const w = Math.min(280, window.innerWidth - 16);
+      tip.style.maxWidth = w + 'px';
+      let left = Math.min(Math.max(8, r.left + r.width / 2 - tip.offsetWidth / 2), window.innerWidth - tip.offsetWidth - 8);
+      let top = r.top - tip.offsetHeight - 10;
+      if (top < 8) top = r.bottom + 10;
+      tip.style.left = left + 'px'; tip.style.top = top + 'px';
+      clearTimeout(hideTimer);
+    }
+    const hideTip = () => { tip.hidden = true; };
+    const cancel = () => { clearTimeout(timer); timer = null; };
+    grid.addEventListener('pointerdown', e => {
+      const b = e.target.closest('.cat');
+      if (!b) return;
+      longPressed = false; startX = e.clientX; startY = e.clientY;
+      cancel();
+      timer = setTimeout(() => { longPressed = true; showTip(b); }, 450);
+    });
+    grid.addEventListener('pointermove', e => {
+      if (timer && Math.hypot(e.clientX - startX, e.clientY - startY) > 10) cancel();
+    });
+    const release = () => { cancel(); if (!tip.hidden) hideTimer = setTimeout(hideTip, 1500); };
+    grid.addEventListener('pointerup', release);
+    grid.addEventListener('pointercancel', release);
+    grid.addEventListener('pointerleave', release);
+    // Nach langem Drücken keine Auswahl auslösen
+    grid.addEventListener('click', e => {
+      if (longPressed) { e.preventDefault(); e.stopImmediatePropagation(); longPressed = false; }
+    }, true);
+    grid.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('scroll', hideTip, { passive: true });
+  })();
+
   function rankleShareText() {
     const head = `GeoRankle #${rankle.num}`;
     const flags = rankle.picks.map(p => BY_ISO[p.iso3].emoji).join(' ');
