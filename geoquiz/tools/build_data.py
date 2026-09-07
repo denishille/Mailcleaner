@@ -205,9 +205,12 @@ def parse_factbook(d):
     s["co2"] = num(get(d, "Environment", "Carbon dioxide emissions", "total emissions", "text"))
     if s["co2"] is not None:
         s["co2"] = s["co2"] / 1e6  # -> Megatonnen
-    fossil = num(get(d, "Energy", "Electricity generation sources", "fossil fuels", "text"))
-    nuclear = num(get(d, "Energy", "Electricity generation sources", "nuclear", "text")) or 0
-    s["renew"] = max(0.0, round(100 - fossil - nuclear, 1)) if fossil is not None else None
+    # Erneuerbare = Summe aller Quellen außer fossil und nuklear (Anteil an installierter Kapazität)
+    src = get(d, "Energy", "Electricity generation sources") or {}
+    parts = [num(v.get("text")) for k, v in src.items()
+             if isinstance(v, dict) and k not in ("fossil fuels", "nuclear")]
+    parts = [x for x in parts if x is not None]
+    s["renew"] = min(100.0, round(sum(parts), 1)) if src else None
     E = "Economy"
     s["gdppc"] = num(latest(get(d, E, "Real GDP per capita")))
     s["gdp"] = num(latest(get(d, E, "Real GDP (purchasing power parity)")))
