@@ -51,3 +51,13 @@ python3 tools/flag_colors.py --countries /tmp/countries.json \
 python3 tools/build_data.py --countries /tmp/countries.json --factbook /tmp/factbook \
     --flags /tmp/flag-icons/flags/4x3 --colors tools/flagcolors.json --out data.js
 ```
+
+## Hosten (Cloudflare Pages)
+
+Kein Build nötig, alles ist statisch. Zwei Wege:
+
+1. **Ordner deployen:** Cloudflare Pages → Projekt aus dem GitHub-Repo anlegen,
+   Production-Branch `main`, Build-Befehl leer lassen, Build-Output-Verzeichnis
+   `geoquiz`. Jeder Push auf `main` deployt automatisch.
+2. **Einzeldatei:** `python3 tools/build_single.py` erzeugt `geoquiz.html` mit
+   allem drin. Diese Datei als `index.html` per Direct Upload hochladen.
