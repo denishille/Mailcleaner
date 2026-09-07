@@ -601,9 +601,8 @@
 
   function rankleShareText() {
     const head = `GeoRankle #${rankle.num}`;
-    const flags = rankle.picks.map(p => BY_ISO[p.iso3].emoji).join(' ');
-    const bars = rankle.picks.map(p => ptsEmoji(p.pts)).join('');
-    return `${head} · ${total()}/${ROUNDS * 100} Punkte\n${flags}\n${bars}${shareUrl()}`;
+    const lines = rankle.picks.map(p => `${ptsEmoji(p.pts)} ${BY_ISO[p.iso3].emoji} ${p.pts}`).join('\n');
+    return `${head} · ${total()}/${ROUNDS * 100} Punkte\n${lines}${shareUrl()}`;
   }
   function renderRankleResult() {
     const box = $('#rankle-result');
