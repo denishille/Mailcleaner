@@ -137,12 +137,9 @@
     view = v;
     $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === v));
     $$('.view').forEach(s => s.classList.toggle('active', s.id === 'view-' + v));
-    $('#help-daily').hidden = v !== 'daily';
-    $('#help-rankle').hidden = v !== 'rankle';
     try { location.hash = v; } catch (e) { /* egal */ }
   }
   $$('.tab').forEach(t => t.addEventListener('click', () => setView(t.dataset.view)));
-  $('#btn-help').addEventListener('click', () => openModal('#modal-help'));
   $('#btn-stats').addEventListener('click', () => { renderStats(); openModal('#modal-stats'); });
 
   // =================================================================

@@ -249,7 +249,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
   </nav>
   <div class="top-actions">
     <button class="icon-btn" id="btn-stats" title="Statistik" aria-label="Statistik"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
-    <button class="icon-btn" id="btn-help" title="Anleitung" aria-label="Anleitung"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7M12 17h.01"/></svg></button>
   </div>
 </header>
 
@@ -323,33 +322,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
 </main>
 
 <!-- Modals -->
-<div class="modal" id="modal-help" hidden>
-  <div class="modal-box">
-    <button class="modal-close" data-close>✕</button>
-    <div id="help-daily">
-      <h2>Land des Tages – so geht’s</h2>
-      <p>Jeden Tag kommt ein neues Rätsel dazu, für alle dasselbe. Du hast <strong>5 Versuche</strong>. Über die Pfeile oder die Auswahl kannst du jedes bisherige Rätsel spielen, dein Stand wird pro Rätsel gespeichert.</p>
-      <p>Nach jedem Tipp zeigt eine Zeile, wie dein Land im Vergleich zum gesuchten Land liegt. Jede Zelle ist entweder ein Treffer (schwarz) oder daneben (grau):</p>
-      <ul>
-        <li><strong>Kontinent</strong>, <strong>Küste</strong> (Binnenstaat oder nicht) und <strong>Währung</strong>: Treffer oder daneben.</li>
-        <li><strong>Entfernung</strong>: Luftlinie zwischen den Landesmitten.</li>
-        <li><strong>Einwohner, Fläche, BIP pro Kopf, Nachbarländer</strong>: Der Pfeil zeigt, ob das gesuchte Land höher ↑ oder niedriger ↓ liegt.</li>
-        <li><strong>Flaggenfarben</strong> und <strong>Sprachen</strong>: Gemeinsame Einträge werden hervorgehoben. Treffer, wenn alles übereinstimmt.</li>
-      </ul>
-      <p>Die Eingabe ist tolerant: Akzente sind egal, deutsche und englische Namen sowie gängige Aliasse zählen („Elfenbeinküste“, „Cote d'Ivoire“, „Ivory Coast“).</p>
-      <p>Kleinststaaten mit unter 250.000 Einwohnern sind nie das gesuchte Land, können aber getippt werden. Löse das Rätsel des Tages täglich für eine Serie und teile dein Ergebnis als spoilerfreies Emoji-Raster. Ein neues Rätsel gibt es um Mitternacht.</p>
-    </div>
-    <div id="help-rankle" hidden>
-      <h2>GeoRankle – so geht’s</h2>
-      <p><strong>8 Runden</strong>, in jeder Runde ein Land. Wähle aus den noch nicht benutzten Kategorien die, in der das Land <strong>weltweit am besten platziert</strong> ist (kleinste Rangnummer unter allen 196 Ländern).</p>
-      <p>Jede Kategorie kann nur <strong>einmal</strong> pro Spiel gewählt werden. Gute Spieler denken in „sicheren“ und „riskanten“ Kategorien: Eine Kategorie, in der ein Land Rang 1 hat, ist später vielleicht für ein anderes Land noch wichtiger.</p>
-      <p><strong>Punkte:</strong> Triffst du die beste noch verfügbare Kategorie, gibt es 100 Punkte. Jeder Rang Abstand zum bestmöglichen Rang kostet Punkte, ein knapper Fehlgriff bringt also immer noch viel. Maximum: 800.</p>
-      <p>Achtung bei <strong>Inflation, Arbeitslosigkeit und CO₂</strong>: Rang 1 bedeutet dort „am meisten“, nicht „am besten“. Zählt trotzdem als kleinste Rangnummer.</p>
-      <p>Jeden Tag kommt ein neues Rätsel dazu, für alle gleich. Über die Pfeile oder die Auswahl kannst du jedes bisherige Rätsel spielen.</p>
-    </div>
-  </div>
-</div>
-
 <div class="modal" id="modal-stats" hidden>
   <div class="modal-box">
     <button class="modal-close" data-close>✕</button>
@@ -503,12 +475,9 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
     view = v;
     $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === v));
     $$('.view').forEach(s => s.classList.toggle('active', s.id === 'view-' + v));
-    $('#help-daily').hidden = v !== 'daily';
-    $('#help-rankle').hidden = v !== 'rankle';
     try { location.hash = v; } catch (e) { /* egal */ }
   }
   $$('.tab').forEach(t => t.addEventListener('click', () => setView(t.dataset.view)));
-  $('#btn-help').addEventListener('click', () => openModal('#modal-help'));
   $('#btn-stats').addEventListener('click', () => { renderStats(); openModal('#modal-stats'); });
 
   // =================================================================
