@@ -221,19 +221,12 @@
 
   function numCompare(g, s, isCount) {
     if (g == null || s == null) return { cls: 'miss', arrow: '?' };
-    if (isCount) {
-      const d = s - g;
-      return { cls: d === 0 ? 'ok' : Math.abs(d) <= 2 ? 'near' : 'miss', arrow: d > 0 ? '↑' : d < 0 ? '↓' : '✓' };
-    }
-    const ratio = g === 0 ? (s === 0 ? 1 : Infinity) : s / g;
-    const cls = ratio >= 0.9 && ratio <= 1.111 ? 'ok' : ratio >= 0.5 && ratio <= 2 ? 'near' : 'miss';
-    const arrow = s === g ? '✓' : s > g ? '↑' : '↓';
-    return { cls, arrow };
+    return { cls: s === g ? 'ok' : 'miss', arrow: s === g ? '✓' : s > g ? '↑' : '↓' };
   }
   function setCompare(gs, ss) {
     const shared = gs.filter(x => ss.includes(x));
     const same = shared.length === gs.length && shared.length === ss.length;
-    return { cls: same ? 'ok' : shared.length ? 'near' : 'miss', shared };
+    return { cls: same ? 'ok' : 'miss', shared };
   }
 
   function evalGuess(g, s) {
@@ -242,7 +235,7 @@
     const d = geo(g.latlng, s.latlng);
     out.distance = g.iso3 === s.iso3
       ? { cls: 'ok', html: '0 km', arrow: '✓' }
-      : { cls: d.km <= 2000 ? 'near' : 'miss', html: nf0.format(Math.round(d.km / 10) * 10) + ' km', arrow: d.arrow };
+      : { cls: 'miss', html: nf0.format(Math.round(d.km / 10) * 10) + ' km', arrow: d.arrow };
     let c = numCompare(g.stats.pop, s.stats.pop);
     out.pop = { cls: c.cls, html: esc(fmtCompact(g.stats.pop)), arrow: c.arrow };
     c = numCompare(g.stats.area, s.stats.area);
@@ -277,7 +270,7 @@
     const s = daily.secret;
     return daily.guesses.map(iso => {
       const ev = evalGuess(BY_ISO[iso], s);
-      return HINTS.map(h => ({ ok: '🟩', near: '🟨', miss: '⬛' })[ev[h.key].cls]).join('');
+      return HINTS.map(h => (ev[h.key].cls === 'ok' ? '🟩' : '⬛')).join('');
     }).join('\n');
   }
 
