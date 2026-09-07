@@ -199,7 +199,11 @@
   $('#daily-prev').addEventListener('click', () => { const n = neighbour(puzzleList(dailyKey, filters.daily), daily.num, -1); if (n) loadDaily(n); });
   $('#daily-next').addEventListener('click', () => { const n = neighbour(puzzleList(dailyKey, filters.daily), daily.num, 1); if (n) loadDaily(n); });
   $('#daily-pick').addEventListener('change', e => loadDaily(+e.target.value));
-  $('#daily-filter').addEventListener('change', e => { filters.daily = e.target.value; store.set('dailyFilter', filters.daily); renderDaily(); });
+  $('#daily-filter').addEventListener('change', e => {
+    filters.daily = e.target.value; store.set('dailyFilter', filters.daily);
+    const list = puzzleList(dailyKey, filters.daily);
+    if (list.length && !list.includes(daily.num)) loadDaily(list[0]); else renderDaily();
+  });
 
   // ---- Hinweise
   const HINTS = [
@@ -491,7 +495,11 @@
   $('#rankle-prev').addEventListener('click', () => { const n = neighbour(puzzleList(rankleKey, filters.rankle), rankle.num, -1); if (n) loadRankle(n); });
   $('#rankle-next').addEventListener('click', () => { const n = neighbour(puzzleList(rankleKey, filters.rankle), rankle.num, 1); if (n) loadRankle(n); });
   $('#rankle-pick').addEventListener('change', e => loadRankle(+e.target.value));
-  $('#rankle-filter').addEventListener('change', e => { filters.rankle = e.target.value; store.set('rankleFilter', filters.rankle); renderRankle(); });
+  $('#rankle-filter').addEventListener('change', e => {
+    filters.rankle = e.target.value; store.set('rankleFilter', filters.rankle);
+    const list = puzzleList(rankleKey, filters.rankle);
+    if (list.length && !list.includes(rankle.num)) loadRankle(list[0]); else renderRankle();
+  });
 
   function points(chosen, best) {
     if (chosen === best) return 100;
@@ -684,8 +692,8 @@
   // =================================================================
   //  Start
   // =================================================================
-  loadDaily();
-  loadRankle();
+  { const l = puzzleList(dailyKey, filters.daily); loadDaily(l.length ? l[0] : undefined); }
+  { const l = puzzleList(rankleKey, filters.rankle); loadRankle(l.length ? l[0] : undefined); }
   setView(location.hash === '#rankle' ? 'rankle' : 'daily');
 
   // Tageswechsel bei offener Seite erkennen: neues Rätsel in die Auswahl aufnehmen
