@@ -150,8 +150,6 @@
 
   // Rätsel #1 = EPOCH, #N = EPOCH + N-1 Tage. Alle Rätsel bis heute sind spielbar.
   const maxPuzzle = () => todayIndex() + 1;
-  const puzzleDate = n => new Date(EPOCH.getFullYear(), EPOCH.getMonth(), EPOCH.getDate() + n - 1);
-  const dfmt = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
   const clampPuzzle = n => Math.min(Math.max(1, Math.round(n) || maxPuzzle()), maxPuzzle());
 
   const daily = { num: 0, day: 0, secret: null, guesses: [], done: false, won: false };
@@ -265,7 +263,7 @@
 
   function renderDaily() {
     const isToday = daily.num === maxPuzzle();
-    $('#daily-num').textContent = 'Rätsel #' + daily.num + (isToday ? ' · heute' : ' · ' + dfmt.format(puzzleDate(daily.num)));
+    $('#daily-num').textContent = 'Rätsel #' + daily.num;
     $('#daily-sub').textContent = isToday
       ? 'Errate das geheime Land in 5 Versuchen. Alle spielen heute dasselbe Land.'
       : 'Errate das geheime Land in 5 Versuchen. Jedes Rätsel hat sein eigenes Land.';
@@ -531,7 +529,7 @@
 
   function renderRankle() {
     const isToday = rankle.num === maxPuzzle();
-    $('#rankle-num').textContent = 'Rätsel #' + rankle.num + (isToday ? ' · heute' : ' · ' + dfmt.format(puzzleDate(rankle.num)));
+    $('#rankle-num').textContent = 'Rätsel #' + rankle.num;
     fillPicker($('#rankle-pick'), rankle.num, rankleKey);
     $('#rankle-prev').disabled = rankle.num <= 1;
     $('#rankle-next').disabled = isToday;
