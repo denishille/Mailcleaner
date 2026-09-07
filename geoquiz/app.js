@@ -485,8 +485,8 @@
 
   function bestAvailable(c) {
     let best = null;
+    // Beste Kategorie unter allen 8 des Rätsels, auch wenn sie schon verbraucht ist
     for (const cat of rankleCats()) {
-      if (rankle.used.includes(cat.key)) continue;
       const r = c.ranks && c.ranks[cat.key];
       if (r != null && (best === null || r < best.rank)) best = { cat: cat.key, rank: r };
     }
