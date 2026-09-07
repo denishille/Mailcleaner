@@ -1,0 +1,964 @@
+{
+"AFG": [
+"black",
+"green",
+"red"
+],
+"AGO": [
+"red",
+"black"
+],
+"ALB": [
+"red",
+"black"
+],
+"AND": [
+"red",
+"yellow",
+"blue"
+],
+"ARE": [
+"red",
+"green",
+"white",
+"black"
+],
+"ARG": [
+"blue",
+"white"
+],
+"ARM": [
+"red",
+"blue",
+"yellow"
+],
+"ATG": [
+"red",
+"black",
+"blue",
+"yellow",
+"white"
+],
+"AUS": [
+"blue",
+"white",
+"red"
+],
+"AUT": [
+"red",
+"white"
+],
+"AZE": [
+"blue",
+"green",
+"red"
+],
+"BDI": [
+"white",
+"red",
+"green"
+],
+"BEL": [
+"yellow",
+"red",
+"black"
+],
+"BEN": [
+"green",
+"yellow",
+"red"
+],
+"BFA": [
+"red",
+"green",
+"yellow"
+],
+"BGD": [
+"green",
+"red"
+],
+"BGR": [
+"white",
+"green",
+"red"
+],
+"BHR": [
+"red",
+"white"
+],
+"BHS": [
+"blue",
+"black",
+"yellow"
+],
+"BIH": [
+"blue",
+"yellow",
+"white"
+],
+"BLR": [
+"red",
+"green",
+"white"
+],
+"BLZ": [
+"blue",
+"white",
+"red",
+"green"
+],
+"BOL": [
+"red",
+"green",
+"yellow"
+],
+"BRA": [
+"green",
+"yellow",
+"blue"
+],
+"BRB": [
+"blue",
+"yellow"
+],
+"BRN": [
+"yellow",
+"white",
+"black",
+"red"
+],
+"BTN": [
+"yellow",
+"orange",
+"white"
+],
+"BWA": [
+"blue",
+"black",
+"white"
+],
+"CAF": [
+"yellow",
+"white",
+"green",
+"blue",
+"red"
+],
+"CAN": [
+"red",
+"white"
+],
+"CHE": [
+"red",
+"white"
+],
+"CHL": [
+"red",
+"white",
+"blue"
+],
+"CHN": [
+"red"
+],
+"CIV": [
+"white",
+"green",
+"orange"
+],
+"CMR": [
+"yellow",
+"green",
+"red"
+],
+"COD": [
+"blue",
+"red",
+"yellow"
+],
+"COG": [
+"yellow",
+"green",
+"red"
+],
+"COL": [
+"yellow",
+"blue",
+"red"
+],
+"COM": [
+"green",
+"blue",
+"yellow",
+"white",
+"red"
+],
+"CPV": [
+"blue",
+"white",
+"red"
+],
+"CRI": [
+"white",
+"blue",
+"red"
+],
+"CUB": [
+"blue",
+"red",
+"white"
+],
+"CYP": [
+"white",
+"orange"
+],
+"CZE": [
+"red",
+"white",
+"blue"
+],
+"DEU": [
+"black",
+"red",
+"yellow"
+],
+"DJI": [
+"blue",
+"green",
+"white"
+],
+"DMA": [
+"green",
+"red",
+"yellow",
+"white",
+"black"
+],
+"DNK": [
+"red",
+"white"
+],
+"DOM": [
+"red",
+"blue",
+"white"
+],
+"DZA": [
+"white",
+"green",
+"red"
+],
+"ECU": [
+"yellow",
+"red",
+"blue"
+],
+"EGY": [
+"red",
+"black",
+"white"
+],
+"ERI": [
+"red",
+"green",
+"white",
+"yellow"
+],
+"ESP": [
+"red",
+"yellow"
+],
+"EST": [
+"blue",
+"black",
+"white"
+],
+"ETH": [
+"green",
+"red",
+"yellow",
+"blue"
+],
+"FIN": [
+"white",
+"blue"
+],
+"FJI": [
+"blue",
+"red",
+"white"
+],
+"FRA": [
+"blue",
+"red",
+"white"
+],
+"FSM": [
+"blue"
+],
+"GAB": [
+"green",
+"yellow",
+"blue"
+],
+"GBR": [
+"red",
+"white",
+"blue"
+],
+"GEO": [
+"white",
+"red"
+],
+"GHA": [
+"red",
+"green",
+"yellow"
+],
+"GIN": [
+"green",
+"red",
+"yellow"
+],
+"GMB": [
+"blue",
+"red",
+"green",
+"white"
+],
+"GNB": [
+"yellow",
+"green",
+"red"
+],
+"GNQ": [
+"green",
+"red",
+"white",
+"blue"
+],
+"GRC": [
+"blue",
+"white"
+],
+"GRD": [
+"red",
+"yellow",
+"green"
+],
+"GTM": [
+"blue",
+"white"
+],
+"GUY": [
+"green",
+"red",
+"yellow",
+"white"
+],
+"HND": [
+"blue",
+"white"
+],
+"HRV": [
+"red",
+"blue",
+"white"
+],
+"HTI": [
+"blue",
+"red"
+],
+"HUN": [
+"red",
+"white",
+"green"
+],
+"IDN": [
+"red",
+"white"
+],
+"IND": [
+"orange",
+"green",
+"white"
+],
+"IRL": [
+"green",
+"orange",
+"white"
+],
+"IRN": [
+"white",
+"red",
+"green"
+],
+"IRQ": [
+"red",
+"black",
+"white"
+],
+"ISL": [
+"blue",
+"red",
+"white"
+],
+"ISR": [
+"white",
+"blue"
+],
+"ITA": [
+"green",
+"red",
+"white"
+],
+"JAM": [
+"yellow",
+"green",
+"black"
+],
+"JOR": [
+"red",
+"black",
+"green",
+"white"
+],
+"JPN": [
+"white",
+"red"
+],
+"KAZ": [
+"blue",
+"yellow"
+],
+"KEN": [
+"black",
+"red",
+"green",
+"white"
+],
+"KGZ": [
+"red",
+"yellow"
+],
+"KHM": [
+"blue",
+"red",
+"white"
+],
+"KIR": [
+"red",
+"blue",
+"white",
+"yellow"
+],
+"KNA": [
+"black",
+"red",
+"green",
+"yellow"
+],
+"KOR": [
+"white",
+"black",
+"blue",
+"red"
+],
+"UNK": [
+"blue",
+"orange"
+],
+"KWT": [
+"red",
+"green",
+"black",
+"white"
+],
+"LAO": [
+"red",
+"blue",
+"white"
+],
+"LBN": [
+"red",
+"white",
+"green"
+],
+"LBR": [
+"red",
+"white",
+"blue"
+],
+"LBY": [
+"black",
+"red",
+"green"
+],
+"LCA": [
+"blue",
+"yellow",
+"black"
+],
+"LIE": [
+"red",
+"blue"
+],
+"LKA": [
+"red",
+"yellow",
+"orange",
+"green"
+],
+"LSO": [
+"white",
+"blue",
+"green"
+],
+"LTU": [
+"yellow",
+"green",
+"red"
+],
+"LUX": [
+"red",
+"white",
+"blue"
+],
+"LVA": [
+"red",
+"white"
+],
+"MAR": [
+"red"
+],
+"MCO": [
+"red",
+"white"
+],
+"MDA": [
+"red",
+"blue",
+"yellow",
+"orange"
+],
+"MDG": [
+"white",
+"red",
+"green"
+],
+"MDV": [
+"red",
+"green"
+],
+"MEX": [
+"red",
+"green",
+"white"
+],
+"MHL": [
+"blue",
+"white",
+"orange"
+],
+"MKD": [
+"red",
+"yellow"
+],
+"MLI": [
+"green",
+"yellow",
+"red"
+],
+"MLT": [
+"red",
+"white"
+],
+"MMR": [
+"yellow",
+"red",
+"green",
+"white"
+],
+"MNE": [
+"red",
+"yellow"
+],
+"MNG": [
+"red",
+"blue",
+"yellow"
+],
+"MOZ": [
+"yellow",
+"green",
+"red",
+"black"
+],
+"MRT": [
+"green",
+"red",
+"yellow"
+],
+"MUS": [
+"red",
+"blue",
+"yellow",
+"green"
+],
+"MWI": [
+"red",
+"green",
+"black"
+],
+"MYS": [
+"red",
+"white",
+"blue"
+],
+"NAM": [
+"red",
+"green",
+"blue",
+"white"
+],
+"NER": [
+"orange",
+"green",
+"white"
+],
+"NGA": [
+"green",
+"white"
+],
+"NIC": [
+"blue",
+"white"
+],
+"NLD": [
+"red",
+"white",
+"blue"
+],
+"NOR": [
+"red",
+"blue",
+"white"
+],
+"NPL": [
+"red",
+"blue",
+"white"
+],
+"NRU": [
+"blue",
+"yellow"
+],
+"NZL": [
+"blue",
+"red",
+"white"
+],
+"OMN": [
+"red",
+"white",
+"green"
+],
+"PAK": [
+"green",
+"white"
+],
+"PAN": [
+"white",
+"blue",
+"red"
+],
+"PER": [
+"red",
+"white"
+],
+"PHL": [
+"blue",
+"red",
+"white",
+"yellow"
+],
+"PLW": [
+"blue",
+"yellow"
+],
+"PNG": [
+"black",
+"red",
+"yellow"
+],
+"POL": [
+"white",
+"red"
+],
+"PRK": [
+"red",
+"blue",
+"white"
+],
+"PRT": [
+"red",
+"green"
+],
+"PRY": [
+"red",
+"blue",
+"white"
+],
+"QAT": [
+"red",
+"white"
+],
+"ROU": [
+"blue",
+"yellow",
+"red"
+],
+"RUS": [
+"white",
+"blue",
+"red"
+],
+"RWA": [
+"blue",
+"yellow",
+"green"
+],
+"SAU": [
+"green",
+"white"
+],
+"SDN": [
+"red",
+"black",
+"green",
+"white"
+],
+"SEN": [
+"green",
+"red",
+"yellow"
+],
+"SGP": [
+"white",
+"red"
+],
+"SLB": [
+"blue",
+"green",
+"yellow"
+],
+"SLE": [
+"green",
+"white",
+"blue"
+],
+"SLV": [
+"blue",
+"white"
+],
+"SMR": [
+"white",
+"blue"
+],
+"SOM": [
+"blue",
+"white"
+],
+"SRB": [
+"white",
+"red",
+"blue"
+],
+"SSD": [
+"blue",
+"green",
+"black",
+"red",
+"white"
+],
+"STP": [
+"green",
+"yellow",
+"red"
+],
+"SUR": [
+"green",
+"red",
+"white"
+],
+"SVK": [
+"red",
+"white",
+"blue"
+],
+"SVN": [
+"blue",
+"red",
+"white"
+],
+"SWE": [
+"blue",
+"yellow"
+],
+"SWZ": [
+"blue",
+"red",
+"yellow",
+"black",
+"white"
+],
+"SYC": [
+"red",
+"green",
+"blue",
+"white",
+"yellow"
+],
+"SYR": [
+"green",
+"black",
+"white"
+],
+"TCD": [
+"blue",
+"red",
+"yellow"
+],
+"TGO": [
+"green",
+"yellow",
+"red"
+],
+"THA": [
+"red",
+"white",
+"blue"
+],
+"TJK": [
+"white",
+"red",
+"green"
+],
+"TKM": [
+"green",
+"red"
+],
+"TLS": [
+"red",
+"black",
+"yellow"
+],
+"TON": [
+"red",
+"white"
+],
+"TTO": [
+"red",
+"black",
+"white"
+],
+"TUN": [
+"red",
+"white"
+],
+"TUR": [
+"red",
+"white"
+],
+"TUV": [
+"blue",
+"red",
+"white"
+],
+"TWN": [
+"red",
+"blue"
+],
+"TZA": [
+"black",
+"green",
+"blue",
+"yellow"
+],
+"UGA": [
+"yellow",
+"black",
+"orange"
+],
+"UKR": [
+"blue",
+"yellow"
+],
+"URY": [
+"white",
+"blue"
+],
+"USA": [
+"white",
+"red",
+"blue"
+],
+"UZB": [
+"white",
+"green",
+"blue"
+],
+"VAT": [
+"yellow",
+"white"
+],
+"VCT": [
+"yellow",
+"green",
+"blue"
+],
+"VEN": [
+"yellow",
+"red",
+"blue"
+],
+"VNM": [
+"red",
+"yellow"
+],
+"VUT": [
+"red",
+"green",
+"black",
+"yellow"
+],
+"WSM": [
+"red",
+"blue"
+],
+"YEM": [
+"white",
+"red",
+"black"
+],
+"ZAF": [
+"green",
+"red",
+"blue",
+"white",
+"black",
+"yellow"
+],
+"ZMB": [
+"green",
+"orange",
+"red",
+"black"
+],
+"ZWE": [
+"green",
+"yellow",
+"white",
+"red",
+"black"
+]
+}

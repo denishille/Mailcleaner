@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoQuiz – Land des Tages & GeoRankle</title>
+<meta name="description" content="Zwei tägliche Geografie-Rätsel: Errate das geheime Land in 5 Versuchen und finde bei GeoRankle die beste Kategorie jedes Landes.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">🌍 <span>GeoQuiz</span></div>
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-view="daily" role="tab">Land des Tages</button>
+    <button class="tab" data-view="rankle" role="tab">GeoRankle</button>
+  </nav>
+  <div class="top-actions">
+    <button class="icon-btn" id="btn-stats" title="Statistik">📊</button>
+    <button class="icon-btn" id="btn-help" title="Anleitung">❔</button>
+  </div>
+</header>
+
+<main>
+  <!-- ================= Land des Tages ================= -->
+  <section id="view-daily" class="view active">
+    <div class="view-head">
+      <div>
+        <h1>Land des Tages <span id="daily-num" class="num"></span></h1>
+        <p class="sub" id="daily-sub">Errate das geheime Land in 5 Versuchen.</p>
+      </div>
+      <div class="mode">
+        <button class="chip-btn active" data-dmode="daily">Täglich</button>
+        <button class="chip-btn" data-dmode="practice">Üben</button>
+      </div>
+    </div>
+
+    <form id="guess-form" class="guess-form" autocomplete="off">
+      <div class="combo">
+        <input id="guess-input" type="text" placeholder="Land eingeben …" aria-label="Land" spellcheck="false">
+        <ul id="suggest" class="suggest" hidden></ul>
+      </div>
+      <button type="submit" class="primary" id="guess-btn">Raten</button>
+    </form>
+    <div class="legend">
+      <span><i class="sq ok"></i> Treffer</span>
+      <span><i class="sq near"></i> Nah dran / teilweise</span>
+      <span><i class="sq miss"></i> Daneben</span>
+      <span>↑ ↓ Richtung zum gesuchten Land</span>
+    </div>
+
+    <div id="guesses" class="guesses"></div>
+
+    <div id="daily-result" class="result" hidden></div>
+  </section>
+
+  <!-- ================= GeoRankle ================= -->
+  <section id="view-rankle" class="view">
+    <div class="view-head">
+      <div>
+        <h1>GeoRankle <span id="rankle-num" class="num"></span></h1>
+        <p class="sub">Wähle für jedes Land die Kategorie, in der es weltweit am besten abschneidet.</p>
+      </div>
+      <div class="mode">
+        <button class="chip-btn active" data-rmode="daily">Täglich</button>
+        <button class="chip-btn" data-rmode="random">Zufällig</button>
+      </div>
+    </div>
+
+    <div id="rankle-board" class="rankle-board">
+      <div class="rankle-status">
+        <div class="rounds" id="rankle-rounds"></div>
+        <div class="score">Punkte <strong id="rankle-score">0</strong><span class="muted"> / 800</span></div>
+      </div>
+
+      <div class="flag-card" id="flag-card">
+        <div class="flag-wrap" id="flag-wrap"></div>
+        <div class="flag-meta">
+          <h2 id="rankle-country"></h2>
+          <p class="muted" id="rankle-country-sub"></p>
+        </div>
+      </div>
+
+      <div id="cat-grid" class="cat-grid"></div>
+
+      <div id="rankle-reveal" class="reveal" hidden></div>
+    </div>
+
+    <div id="rankle-result" class="result" hidden></div>
+  </section>
+</main>
+
+<footer class="foot">
+  Daten: CIA World Factbook, mledoze/countries, flag-icons · Nachbau von trivi.gg „Daily Country“ und Geotrivia „GeoRankle“
+</footer>
+
+<!-- Modals -->
+<div class="modal" id="modal-help" hidden>
+  <div class="modal-box">
+    <button class="modal-close" data-close>✕</button>
+    <div id="help-daily">
+      <h2>Land des Tages – so geht’s</h2>
+      <p>Jeden Tag gibt es ein geheimes Land, für alle dasselbe. Du hast <strong>5 Versuche</strong>.</p>
+      <p>Nach jedem Tipp zeigt eine Zeile, wie dein Land im Vergleich zum gesuchten Land liegt:</p>
+      <ul>
+        <li><strong>Kontinent</strong>, <strong>Küste</strong> (Binnenstaat oder nicht) und <strong>Währung</strong>: Treffer oder daneben.</li>
+        <li><strong>Einwohner, Fläche, BIP pro Kopf, Nachbarländer</strong>: Der Pfeil zeigt, ob das gesuchte Land höher ↑ oder niedriger ↓ liegt. Gelb heißt: nah dran (höchstens Faktor 2 bzw. ±2 Nachbarn), grün: fast gleich.</li>
+        <li><strong>Flaggenfarben</strong> und <strong>Sprachen</strong>: Gemeinsame Einträge werden hervorgehoben. Grün, wenn alles übereinstimmt.</li>
+      </ul>
+      <p>Die Eingabe ist tolerant: Akzente sind egal, deutsche und englische Namen sowie gängige Aliasse zählen („Elfenbeinküste“, „Cote d'Ivoire“, „Ivory Coast“).</p>
+      <p>Kleinststaaten mit unter 250.000 Einwohnern sind nie das gesuchte Land, können aber getippt werden. Löse das Rätsel täglich für eine Serie und teile dein Ergebnis als spoilerfreies Emoji-Raster. Ein neues Land gibt es um Mitternacht.</p>
+    </div>
+    <div id="help-rankle" hidden>
+      <h2>GeoRankle – so geht’s</h2>
+      <p><strong>8 Runden</strong>, in jeder Runde ein Land. Wähle aus den noch nicht benutzten Kategorien die, in der das Land <strong>weltweit am besten platziert</strong> ist (kleinste Rangnummer unter allen 196 Ländern).</p>
+      <p>Jede Kategorie kann nur <strong>einmal</strong> pro Spiel gewählt werden. Gute Spieler denken in „sicheren“ und „riskanten“ Kategorien: Eine Kategorie, in der ein Land Rang 1 hat, ist später vielleicht für ein anderes Land noch wichtiger.</p>
+      <p><strong>Punkte:</strong> Triffst du die beste noch verfügbare Kategorie, gibt es 100 Punkte. Jeder Rang Abstand zum bestmöglichen Rang kostet Punkte, ein knapper Fehlgriff bringt also immer noch viel. Maximum: 800.</p>
+      <p>Achtung bei <strong>Inflation, Arbeitslosigkeit und CO₂</strong>: Rang 1 bedeutet dort „am meisten“, nicht „am besten“. Zählt trotzdem als kleinste Rangnummer.</p>
+      <p>Das Tagesspiel ist für alle gleich, im Zufallsmodus kannst du beliebig oft üben.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-stats" hidden>
+  <div class="modal-box">
+    <button class="modal-close" data-close>✕</button>
+    <div id="stats-content"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
