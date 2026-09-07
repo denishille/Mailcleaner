@@ -207,18 +207,12 @@
     { key: 'colors', lbl: 'Flagge', wide: true },
     { key: 'languages', lbl: 'Sprachen', wide: true },
   ];
-  const DIR_ARROWS = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖'];
   function geo(a, b) {
-    // Luftlinie (Haversine) und Kompassrichtung von a nach b
+    // Luftlinie (Haversine) zwischen zwei Koordinaten
     const R = 6371, toRad = d => d * Math.PI / 180;
     const [la1, lo1] = a.map(toRad), [la2, lo2] = b.map(toRad);
-    const dLat = la2 - la1, dLon = lo2 - lo1;
-    const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLon / 2) ** 2;
-    const km = 2 * R * Math.asin(Math.sqrt(h));
-    const y = Math.sin(dLon) * Math.cos(la2);
-    const x = Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dLon);
-    const bearing = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
-    return { km, arrow: DIR_ARROWS[Math.round(bearing / 45) % 8] };
+    const h = Math.sin((la2 - la1) / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin((lo2 - lo1) / 2) ** 2;
+    return { km: 2 * R * Math.asin(Math.sqrt(h)) };
   }
   const COLOR_DE = { red: 'Rot', white: 'Weiß', blue: 'Blau', green: 'Grün', yellow: 'Gelb', black: 'Schwarz', orange: 'Orange', purple: 'Lila' };
   const COLOR_HEX = { red: '#d92b2b', white: '#f4f4f4', blue: '#2b5fd9', green: '#2a9d4a', yellow: '#f2c320', black: '#111', orange: '#f28b1e', purple: '#8a3fc9' };
@@ -238,8 +232,8 @@
     out.continent = { cls: g.continent === s.continent ? 'ok' : 'miss', html: esc(g.continent) };
     const d = geo(g.latlng, s.latlng);
     out.distance = g.iso3 === s.iso3
-      ? { cls: 'ok', html: '0 km', arrow: '✓' }
-      : { cls: 'miss', html: nf0.format(Math.round(d.km / 10) * 10) + ' km', arrow: d.arrow };
+      ? { cls: 'ok', html: '0 km' }
+      : { cls: 'miss', html: nf0.format(Math.round(d.km / 10) * 10) + ' km' };
     let c = numCompare(g.stats.pop, s.stats.pop);
     out.pop = { cls: c.cls, html: esc(fmtCompact(g.stats.pop)), arrow: c.arrow };
     c = numCompare(g.stats.area, s.stats.area);
