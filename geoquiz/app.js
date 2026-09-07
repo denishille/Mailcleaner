@@ -474,7 +474,8 @@
     const rng = mulberry32(seed);
     return { countries: shuffled(RANKLE_POOL, rng).slice(0, ROUNDS).map(c => c.iso3), cats: shuffled(CATS, rng).slice(0, ROUNDS).map(c => c.key) };
   }
-  const rankleCats = () => rankle.cats.map(k => CAT_BY_KEY[k]);
+  const rankleCats = () => rankle.cats.map(k => CAT_BY_KEY[k]).filter(Boolean);
+  const catName = k => (CAT_BY_KEY[k] || { name: k }).name;
   function loadRankle(n) {
     n = clampPuzzle(n);
     rankle.num = n; rankle.day = n - 1;
@@ -483,7 +484,11 @@
     rankle.round = 0; rankle.picks = []; rankle.used = [];
     let saved = store.get(rankleKey(n), null);
     if (!saved) { const old = store.get('rankle', null); if (old && old.day === rankle.day) saved = old; }
-    if (saved && JSON.stringify(saved.countries) === JSON.stringify(rankle.countries) && JSON.stringify(saved.cats) === JSON.stringify(rankle.cats)) {
+    const finished = saved && saved.picks && saved.picks.length >= ROUNDS;
+    const same = saved && JSON.stringify(saved.countries) === JSON.stringify(rankle.countries) && JSON.stringify(saved.cats) === JSON.stringify(rankle.cats);
+    if (finished || same) {
+      // Ein fertig gespieltes Rätsel bleibt fertig, auch wenn sich Länder oder Kategorien später geändert haben
+      if (finished && !same) { rankle.countries = saved.countries; rankle.cats = saved.cats || rankle.cats; }
       rankle.picks = saved.picks; rankle.used = saved.picks.map(p => p.cat);
       rankle.round = saved.picks.length;
     }
@@ -531,7 +536,7 @@
     rankle.round++;
     saveRankle();
     if (rankle.round >= ROUNDS) recordRankleStats();
-    toast(`+${pts} · ${CAT_BY_KEY[key].name}: Rang ${rank}`);
+    toast(`+${pts} · ${catName(key)}: Rang ${rank}`);
     renderRankle();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -640,7 +645,7 @@
       <div class="rounds-summary">${rankle.picks.map((p, i) => {
         const c = BY_ISO[p.iso3];
         return `<div class="rs"><span class="mini-flag">${flagSvg(c)}</span>
-          <div class="rs-body"><strong>${i + 1}. ${esc(c.name)}</strong>${esc(CAT_BY_KEY[p.cat].name)} #${p.rank}${p.pts < 100 ? `<br><span class="muted">Beste: ${esc(CAT_BY_KEY[p.bestCat].name)} #${p.bestRank}</span>` : ''}</div>
+          <div class="rs-body"><strong>${i + 1}. ${esc(c.name)}</strong>${esc(catName(p.cat))} #${p.rank}${p.pts < 100 ? `<br><span class="muted">Beste: ${esc(catName(p.bestCat))} #${p.bestRank}</span>` : ''}</div>
           <span class="rs-pts ${ptsClass(p.pts)}">${p.pts}</span></div>`;
       }).join('')}</div>
       <div class="actions">
