@@ -420,7 +420,7 @@
   // =================================================================
   const RANKLE_POOL = COUNTRIES.filter(c => c.stats.pop >= MIN_POP && Object.keys(c.ranks || {}).length >= 20);
 
-  const rankle = { num: 0, day: 0, countries: [], cats: [], round: 0, picks: [], used: [], revealed: false };
+  const rankle = { num: 0, day: 0, countries: [], cats: [], round: 0, picks: [], used: [] };
   const rankleKey = n => 'rankle.' + n;
 
   // 8 Länder + 8 Kategorien, sodass jedes Land unter den 8 Kategorien eine
@@ -459,12 +459,12 @@
     rankle.num = n; rankle.day = n - 1;
     const built = buildRankle(rankle.day * 1000003 + 42);
     rankle.countries = built.countries; rankle.cats = built.cats;
-    rankle.round = 0; rankle.picks = []; rankle.used = []; rankle.revealed = false;
+    rankle.round = 0; rankle.picks = []; rankle.used = [];
     let saved = store.get(rankleKey(n), null);
     if (!saved) { const old = store.get('rankle', null); if (old && old.day === rankle.day) saved = old; }
     if (saved && JSON.stringify(saved.countries) === JSON.stringify(rankle.countries) && JSON.stringify(saved.cats) === JSON.stringify(rankle.cats)) {
       rankle.picks = saved.picks; rankle.used = saved.picks.map(p => p.cat);
-      rankle.round = saved.picks.length; rankle.revealed = false;
+      rankle.round = saved.picks.length;
     }
     renderRankle();
   }
@@ -494,7 +494,7 @@
   }
 
   function chooseCategory(key) {
-    if (rankle.revealed || rankle.round >= ROUNDS) return;
+    if (rankle.round >= ROUNDS) return;
     const c = BY_ISO[rankle.countries[rankle.round]];
     const rank = c.ranks[key];
     if (rank == null || rankle.used.includes(key)) return;
@@ -502,13 +502,10 @@
     const pts = points(rank, best.rank);
     rankle.picks.push({ iso3: c.iso3, cat: key, rank, bestCat: best.cat, bestRank: best.rank, pts });
     rankle.used.push(key);
-    rankle.revealed = true;
+    rankle.round++;
     saveRankle();
-    renderRankle();
-  }
-  function nextRound() {
-    rankle.round++; rankle.revealed = false;
     if (rankle.round >= ROUNDS) recordRankleStats();
+    toast(`+${pts} · ${CAT_BY_KEY[key].name}: Rang ${rank}`);
     renderRankle();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -550,40 +547,13 @@
     $('#rankle-country').textContent = c.name;
     $('#rankle-country-sub').textContent = `${c.continent} · Hauptstadt ${c.capital} · Runde ${rankle.round + 1} von ${ROUNDS}`;
 
-    const pick = rankle.revealed ? rankle.picks[rankle.picks.length - 1] : null;
     $('#cat-grid').innerHTML = rankleCats().map(cat => {
-      const used = rankle.used.includes(cat.key) && !(pick && pick.cat === cat.key);
-      const noData = c.ranks[cat.key] == null;
-      const dis = used || noData || rankle.revealed;
-      return `<button class="cat${used ? ' used' : ''}" data-cat="${cat.key}" ${dis ? 'disabled' : ''} title="${esc(cat.desc)}">
+      const used = rankle.used.includes(cat.key);
+      return `<button class="cat${used ? ' used' : ''}" data-cat="${cat.key}" ${used ? 'disabled' : ''} title="${esc(cat.desc)}">
         <span class="cn">${esc(cat.name)}</span>
-        <span class="cd">${noData ? 'keine Daten' : used ? 'bereits benutzt' : esc(cat.desc)}</span></button>`;
+        <span class="cd">${used ? 'bereits benutzt' : esc(cat.desc)}</span></button>`;
     }).join('');
     $$('#cat-grid .cat').forEach(b => b.addEventListener('click', () => chooseCategory(b.dataset.cat)));
-
-    const rev = $('#rankle-reveal');
-    if (!pick) { rev.hidden = true; return; }
-    const rows = rankleCats().map(cat => ({ cat, rank: c.ranks[cat.key], v: c.stats[cat.key] }))
-      .sort((a, b) => (a.rank == null) - (b.rank == null) || a.rank - b.rank);
-    const catName = k => CAT_BY_KEY[k].name;
-    const msg = pick.pts === 100
-      ? `Volltreffer! ${catName(pick.cat)} ist die beste verfügbare Kategorie.`
-      : `Beste verfügbare Kategorie wäre <strong>${esc(catName(pick.bestCat))}</strong> gewesen (Rang ${pick.bestRank}).`;
-    rev.innerHTML = `
-      <div class="headline">
-        <div class="pts ${ptsClass(pick.pts)}">+${pick.pts}</div>
-        <div><strong>${esc(catName(pick.cat))}: Rang ${pick.rank} von ${N_COUNTRIES}</strong> · ${fmtStat(CAT_BY_KEY[pick.cat], c.stats[pick.cat])}<br><span class="muted">${msg}</span></div>
-        <button class="primary" id="btn-next" style="margin-left:auto">${rankle.round + 1 >= ROUNDS ? 'Ergebnis ansehen' : 'Nächstes Land'}</button>
-      </div>
-      <div class="table-wrap"><table class="rank-table">
-        <thead><tr><th>Rang</th><th>Kategorie</th><th style="text-align:right">Wert</th></tr></thead>
-        <tbody>${rows.map(r => {
-          const cls = r.cat.key === pick.cat ? 'pick' : r.cat.key === pick.bestCat ? 'best' : rankle.used.includes(r.cat.key) ? 'used' : '';
-          return `<tr class="${cls}"><td class="r">${r.rank != null ? '#' + r.rank : '–'}</td><td>${esc(r.cat.name)}${r.cat.key === pick.cat ? ' ← deine Wahl' : r.cat.key === pick.bestCat && pick.pts < 100 ? ' ← beste Wahl' : ''}</td><td class="v">${fmtStat(r.cat, r.v)}</td></tr>`;
-        }).join('')}</tbody></table></div>`;
-    rev.hidden = false;
-    $('#btn-next').addEventListener('click', nextRound);
-    rev.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function rankleShareText() {
