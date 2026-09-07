@@ -18,7 +18,7 @@ Pages). Alles läuft lokal, Fortschritt und Serien liegen im `localStorage`.
   Richtung, Gelb heißt „nah dran“ (bis Faktor 2 bzw. ±2 Nachbarn).
 - Tolerante Eingabe: deutsche und englische Namen, Aliasse, ohne Akzente.
 - Kleinststaaten unter 250.000 Einwohnern sind nie das gesuchte Land.
-- Serie, Statistik, spoilerfreies Emoji-Raster zum Teilen, Übungsmodus.
+- Alle bisherigen Rätsel sind über Pfeile oder Auswahl spielbar, der Stand wird pro Rätsel gespeichert. Serie, Statistik, spoilerfreies Emoji-Raster zum Teilen.
 
 ## GeoRankle
 
@@ -26,7 +26,7 @@ Pages). Alles läuft lokal, Fortschritt und Serien liegen im `localStorage`.
   Land weltweit am besten platziert ist. Jede Kategorie nur einmal pro Spiel.
 - 100 Punkte für die beste noch verfügbare Kategorie, sonst
   `100 · e^(−(Rang − Bestrang)/40)`. Maximum 800.
-- Tagesspiel (für alle gleich) und Zufallsmodus.
+- Jeden Tag ein neues Rätsel, alle bisherigen bleiben spielbar.
 
 ## Daten neu erzeugen
 

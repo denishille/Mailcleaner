@@ -151,23 +151,24 @@
   const DAILY_POOL = COUNTRIES.filter(c => c.stats.pop >= MIN_POP && c.stats.gdppc != null);
   const DAILY_ORDER = shuffled(DAILY_POOL, mulberry32(20260907));
 
-  const daily = {
-    mode: 'daily',        // 'daily' | 'practice'
-    day: todayIndex(),
-    secret: null,
-    guesses: [],          // iso3
-    done: false,
-    won: false,
-  };
+  // Rätsel #1 = EPOCH, #N = EPOCH + N-1 Tage. Alle Rätsel bis heute sind spielbar.
+  const maxPuzzle = () => todayIndex() + 1;
+  const puzzleDate = n => new Date(EPOCH.getFullYear(), EPOCH.getMonth(), EPOCH.getDate() + n - 1);
+  const dfmt = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+  const clampPuzzle = n => Math.min(Math.max(1, Math.round(n) || maxPuzzle()), maxPuzzle());
+
+  const daily = { num: 0, day: 0, secret: null, guesses: [], done: false, won: false };
 
   function dailySecretFor(day) { return DAILY_ORDER[((day % DAILY_ORDER.length) + DAILY_ORDER.length) % DAILY_ORDER.length]; }
+  const dailyKey = n => 'daily.' + n;
 
-  function loadDaily() {
-    daily.mode = 'daily';
-    daily.day = todayIndex();
+  function loadDaily(n) {
+    n = clampPuzzle(n);
+    daily.num = n; daily.day = n - 1;
     daily.secret = dailySecretFor(daily.day);
-    const saved = store.get('daily', null);
-    if (saved && saved.day === daily.day && saved.secret === daily.secret.iso3) {
+    let saved = store.get(dailyKey(n), null);
+    if (!saved) { const old = store.get('daily', null); if (old && old.day === daily.day) saved = old; }
+    if (saved && saved.secret === daily.secret.iso3) {
       daily.guesses = saved.guesses.filter(i => BY_ISO[i]);
       daily.done = saved.done; daily.won = saved.won;
     } else {
@@ -176,19 +177,22 @@
     renderDaily();
   }
   function saveDaily() {
-    if (daily.mode !== 'daily') return;
-    store.set('daily', { day: daily.day, secret: daily.secret.iso3, guesses: daily.guesses, done: daily.done, won: daily.won });
+    store.set(dailyKey(daily.num), { day: daily.day, secret: daily.secret.iso3, guesses: daily.guesses, done: daily.done, won: daily.won });
   }
-  function startPractice() {
-    daily.mode = 'practice';
-    daily.secret = DAILY_POOL[Math.floor(Math.random() * DAILY_POOL.length)];
-    daily.guesses = []; daily.done = false; daily.won = false;
-    renderDaily();
-    $('#guess-input').focus();
+  function puzzleStatus(key, n) {
+    const s = store.get(key(n), null);
+    return s && s.done ? (s.won ? '✓' : '✗') : (s && (s.guesses || s.picks || []).length ? '…' : '');
   }
-  $$('[data-dmode]').forEach(b => b.addEventListener('click', () => {
-    if (b.dataset.dmode === 'daily') loadDaily(); else startPractice();
-  }));
+  function fillPicker(sel, current, key) {
+    const max = maxPuzzle();
+    sel.innerHTML = Array.from({ length: max }, (_, i) => max - i).map(n => {
+      const st = puzzleStatus(key, n);
+      return `<option value="${n}"${n === current ? ' selected' : ''}>#${n}${n === max ? ' · heute' : ''}${st ? ' ' + st : ''}</option>`;
+    }).join('');
+  }
+  $('#daily-prev').addEventListener('click', () => loadDaily(daily.num - 1));
+  $('#daily-next').addEventListener('click', () => loadDaily(daily.num + 1));
+  $('#daily-pick').addEventListener('change', e => loadDaily(+e.target.value));
 
   // ---- Hinweise
   const HINTS = [
@@ -275,18 +279,20 @@
   }
 
   function renderDaily() {
-    const isDaily = daily.mode === 'daily';
-    $$('[data-dmode]').forEach(b => b.classList.toggle('active', b.dataset.dmode === daily.mode));
-    $('#daily-num').textContent = isDaily ? 'Rätsel #' + (daily.day + 1) : 'Übungsmodus';
-    $('#daily-sub').textContent = isDaily
+    const isToday = daily.num === maxPuzzle();
+    $('#daily-num').textContent = 'Rätsel #' + daily.num + (isToday ? ' · heute' : ' · ' + dfmt.format(puzzleDate(daily.num)));
+    $('#daily-sub').textContent = isToday
       ? 'Errate das geheime Land in 5 Versuchen. Alle spielen heute dasselbe Land.'
-      : 'Übungsmodus: zufälliges Land, ohne Serie.';
+      : 'Errate das geheime Land in 5 Versuchen. Jedes Rätsel hat sein eigenes Land.';
+    fillPicker($('#daily-pick'), daily.num, dailyKey);
+    $('#daily-prev').disabled = daily.num <= 1;
+    $('#daily-next').disabled = isToday;
     const s = daily.secret;
     $('#guesses').innerHTML = daily.guesses.map(iso => guessRowHtml(BY_ISO[iso], evalGuess(BY_ISO[iso], s))).join('');
     const input = $('#guess-input'), btn = $('#guess-btn');
     input.disabled = daily.done; btn.disabled = daily.done;
     input.value = '';
-    input.placeholder = daily.done ? 'Für heute erledigt' : `Land eingeben … (Versuch ${daily.guesses.length + 1}/${MAX_GUESSES})`;
+    input.placeholder = daily.done ? (daily.won ? 'Gelöst' : 'Nicht gelöst') : `Land eingeben … (Versuch ${daily.guesses.length + 1}/${MAX_GUESSES})`;
     renderDailyResult();
   }
 
@@ -296,9 +302,9 @@
     clearInterval(countdownTimer);
     if (!daily.done) { box.hidden = true; return; }
     const s = daily.secret, n = daily.guesses.length;
-    const isDaily = daily.mode === 'daily';
+    const isToday = daily.num === maxPuzzle();
     const title = daily.won ? `Richtig! ${s.name}` : `Leider nicht. Es war ${s.name}`;
-    const shareTitle = isDaily ? `Land des Tages #${daily.day + 1}` : 'Land des Tages (Übung)';
+    const shareTitle = `Land des Tages #${daily.num}`;
     const shareText = `${shareTitle} ${daily.won ? n : 'X'}/${MAX_GUESSES}\n${emojiGrid()}${shareUrl()}`;
     box.innerHTML = `
       <div class="big-flag">${flagSvg(s)}</div>
@@ -311,29 +317,35 @@
       <pre>${esc(shareText.replace(shareUrl(), ''))}</pre>
       <div class="actions">
         <button class="primary" id="btn-share-daily">Ergebnis teilen</button>
-        <button class="ghost" id="btn-practice">Noch ein Land üben</button>
+        ${daily.num > 1 ? `<button class="ghost" id="btn-daily-prev">‹ Rätsel #${daily.num - 1}</button>` : ''}
+        ${!isToday ? `<button class="ghost" id="btn-daily-next">Rätsel #${daily.num + 1} ›</button>` : ''}
       </div>
-      ${isDaily ? '<div class="countdown">Nächstes Land in <strong id="cd"></strong></div>' : ''}`;
+      ${isToday ? '<div class="countdown">Nächstes Rätsel in <strong id="cd"></strong></div>' : ''}`;
     box.hidden = false;
     $('#btn-share-daily').addEventListener('click', () => shareOrCopy(shareText));
-    $('#btn-practice').addEventListener('click', startPractice);
-    if (isDaily) {
+    const bp = $('#btn-daily-prev'); if (bp) bp.addEventListener('click', () => { loadDaily(daily.num - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    const bn = $('#btn-daily-next'); if (bn) bn.addEventListener('click', () => { loadDaily(daily.num + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    if (isToday) {
       const tick = () => { const el = $('#cd'); if (el) el.textContent = fmtCountdown(msToMidnight()); };
       tick(); countdownTimer = setInterval(tick, 1000);
     }
   }
 
   function recordDailyStats(won, n) {
-    const st = store.get('dailyStats', { played: 0, wins: 0, streak: 0, maxStreak: 0, lastDay: null, dist: {} });
-    if (st.lastDay === daily.day) return;
+    const st = store.get('dailyStats', { played: 0, wins: 0, streak: 0, maxStreak: 0, lastDay: null, dist: {}, done: {} });
+    st.done = st.done || {};
+    if (st.done[daily.num]) return;
+    st.done[daily.num] = 1;
     st.played++;
-    if (won) {
-      st.wins++;
-      st.streak = st.lastDay === daily.day - 1 ? st.streak + 1 : 1;
-      st.dist[n] = (st.dist[n] || 0) + 1;
-    } else st.streak = 0;
-    st.maxStreak = Math.max(st.maxStreak, st.streak);
-    st.lastDay = daily.day;
+    if (won) { st.wins++; st.dist[n] = (st.dist[n] || 0) + 1; }
+    if (daily.num === maxPuzzle()) {
+      // Serie zählt nur für das Rätsel des Tages
+      if (st.lastDay !== daily.day) {
+        st.streak = won ? (st.lastDay === daily.day - 1 ? st.streak + 1 : 1) : 0;
+        st.maxStreak = Math.max(st.maxStreak, st.streak);
+        st.lastDay = daily.day;
+      }
+    }
     store.set('dailyStats', st);
   }
 
@@ -343,7 +355,7 @@
     daily.guesses.push(c.iso3);
     if (c.iso3 === daily.secret.iso3) { daily.done = true; daily.won = true; }
     else if (daily.guesses.length >= MAX_GUESSES) { daily.done = true; daily.won = false; }
-    if (daily.done && daily.mode === 'daily') recordDailyStats(daily.won, daily.guesses.length);
+    if (daily.done) recordDailyStats(daily.won, daily.guesses.length);
     saveDaily();
     renderDaily();
     if (!daily.done) $('#guess-input').focus();
@@ -425,32 +437,32 @@
   // =================================================================
   const RANKLE_POOL = COUNTRIES.filter(c => c.stats.pop >= MIN_POP && Object.keys(c.ranks || {}).length >= 20);
 
-  const rankle = { mode: 'daily', day: todayIndex(), seed: 0, countries: [], round: 0, picks: [], used: [], revealed: false };
+  const rankle = { num: 0, day: 0, countries: [], round: 0, picks: [], used: [], revealed: false };
+  const rankleKey = n => 'rankle.' + n;
 
   function pickCountries(seed) {
     const rng = mulberry32(seed);
     return shuffled(RANKLE_POOL, rng).slice(0, ROUNDS).map(c => c.iso3);
   }
-  function newRankle(mode) {
-    rankle.mode = mode;
-    rankle.day = todayIndex();
-    rankle.seed = mode === 'daily' ? rankle.day * 1000003 + 42 : (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
-    rankle.countries = pickCountries(rankle.seed);
+  function loadRankle(n) {
+    n = clampPuzzle(n);
+    rankle.num = n; rankle.day = n - 1;
+    rankle.countries = pickCountries(rankle.day * 1000003 + 42);
     rankle.round = 0; rankle.picks = []; rankle.used = []; rankle.revealed = false;
-    if (mode === 'daily') {
-      const saved = store.get('rankle', null);
-      if (saved && saved.day === rankle.day && JSON.stringify(saved.countries) === JSON.stringify(rankle.countries)) {
-        rankle.picks = saved.picks; rankle.used = saved.picks.map(p => p.cat);
-        rankle.round = saved.picks.length; rankle.revealed = false;
-      }
+    let saved = store.get(rankleKey(n), null);
+    if (!saved) { const old = store.get('rankle', null); if (old && old.day === rankle.day) saved = old; }
+    if (saved && JSON.stringify(saved.countries) === JSON.stringify(rankle.countries)) {
+      rankle.picks = saved.picks; rankle.used = saved.picks.map(p => p.cat);
+      rankle.round = saved.picks.length; rankle.revealed = false;
     }
     renderRankle();
   }
   function saveRankle() {
-    if (rankle.mode !== 'daily') return;
-    store.set('rankle', { day: rankle.day, countries: rankle.countries, picks: rankle.picks });
+    store.set(rankleKey(rankle.num), { day: rankle.day, countries: rankle.countries, picks: rankle.picks, done: rankle.picks.length >= ROUNDS, won: rankle.picks.length >= ROUNDS });
   }
-  $$('[data-rmode]').forEach(b => b.addEventListener('click', () => newRankle(b.dataset.rmode)));
+  $('#rankle-prev').addEventListener('click', () => loadRankle(rankle.num - 1));
+  $('#rankle-next').addEventListener('click', () => loadRankle(rankle.num + 1));
+  $('#rankle-pick').addEventListener('change', e => loadRankle(+e.target.value));
 
   function points(chosen, best) {
     if (chosen === best) return 100;
@@ -485,25 +497,31 @@
   }
   function nextRound() {
     rankle.round++; rankle.revealed = false;
-    if (rankle.round >= ROUNDS && rankle.mode === 'daily') recordRankleStats();
+    if (rankle.round >= ROUNDS) recordRankleStats();
     renderRankle();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function recordRankleStats() {
-    const st = store.get('rankleStats', { games: 0, sum: 0, best: 0, lastDay: null, streak: 0, maxStreak: 0 });
-    if (st.lastDay === rankle.day) return;
+    const st = store.get('rankleStats', { games: 0, sum: 0, best: 0, lastDay: null, streak: 0, maxStreak: 0, done: {} });
+    st.done = st.done || {};
+    if (st.done[rankle.num]) return;
+    st.done[rankle.num] = 1;
     const t = total();
     st.games++; st.sum += t; st.best = Math.max(st.best, t);
-    st.streak = st.lastDay === rankle.day - 1 ? st.streak + 1 : 1;
-    st.maxStreak = Math.max(st.maxStreak, st.streak);
-    st.lastDay = rankle.day;
+    if (rankle.num === maxPuzzle() && st.lastDay !== rankle.day) {
+      st.streak = st.lastDay === rankle.day - 1 ? st.streak + 1 : 1;
+      st.maxStreak = Math.max(st.maxStreak, st.streak);
+      st.lastDay = rankle.day;
+    }
     store.set('rankleStats', st);
   }
 
   function renderRankle() {
-    const isDaily = rankle.mode === 'daily';
-    $$('[data-rmode]').forEach(b => b.classList.toggle('active', b.dataset.rmode === rankle.mode));
-    $('#rankle-num').textContent = isDaily ? 'Tagesspiel #' + (rankle.day + 1) : 'Zufallsspiel';
+    const isToday = rankle.num === maxPuzzle();
+    $('#rankle-num').textContent = 'Rätsel #' + rankle.num + (isToday ? ' · heute' : ' · ' + dfmt.format(puzzleDate(rankle.num)));
+    fillPicker($('#rankle-pick'), rankle.num, rankleKey);
+    $('#rankle-prev').disabled = rankle.num <= 1;
+    $('#rankle-next').disabled = isToday;
     $('#rankle-score').textContent = total();
     $('#rankle-rounds').innerHTML = Array.from({ length: ROUNDS }, (_, i) => {
       const p = rankle.picks[i];
@@ -558,8 +576,7 @@
   }
 
   function rankleShareText() {
-    const isDaily = rankle.mode === 'daily';
-    const head = isDaily ? `GeoRankle #${rankle.day + 1}` : 'GeoRankle (Zufall)';
+    const head = `GeoRankle #${rankle.num}`;
     const flags = rankle.picks.map(p => BY_ISO[p.iso3].emoji).join(' ');
     const bars = rankle.picks.map(p => ptsEmoji(p.pts)).join('');
     return `${head} · ${total()}/${ROUNDS * 100} Punkte\n${flags}\n${bars}${shareUrl()}`;
@@ -580,14 +597,14 @@
       <pre>${esc(share.replace(shareUrl(), ''))}</pre>
       <div class="actions">
         <button class="primary" id="btn-share-rankle">Ergebnis teilen</button>
-        <button class="ghost" id="btn-rankle-random">Zufallsrunde spielen</button>
-        ${rankle.mode === 'daily' ? '' : '<button class="ghost" id="btn-rankle-daily">Zum Tagesspiel</button>'}
+        ${rankle.num > 1 ? `<button class="ghost" id="btn-rankle-prev">‹ Rätsel #${rankle.num - 1}</button>` : ''}
+        ${rankle.num < maxPuzzle() ? `<button class="ghost" id="btn-rankle-next">Rätsel #${rankle.num + 1} ›</button>` : ''}
       </div>
-      ${rankle.mode === 'daily' ? '<div class="countdown">Nächstes Tagesspiel in <strong id="cd2"></strong></div>' : ''}`;
+      ${rankle.num === maxPuzzle() ? '<div class="countdown">Nächstes Rätsel in <strong id="cd2"></strong></div>' : ''}`;
     $('#btn-share-rankle').addEventListener('click', () => shareOrCopy(share));
-    $('#btn-rankle-random').addEventListener('click', () => newRankle('random'));
-    const bd = $('#btn-rankle-daily'); if (bd) bd.addEventListener('click', () => newRankle('daily'));
-    if (rankle.mode === 'daily') {
+    const rp = $('#btn-rankle-prev'); if (rp) rp.addEventListener('click', () => { loadRankle(rankle.num - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    const rn = $('#btn-rankle-next'); if (rn) rn.addEventListener('click', () => { loadRankle(rankle.num + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    if (rankle.num === maxPuzzle()) {
       const tick = () => { const el = $('#cd2'); if (el) el.textContent = fmtCountdown(msToMidnight()); };
       tick(); setInterval(tick, 1000);
     }
@@ -601,7 +618,7 @@
     if (view === 'daily') {
       const st = store.get('dailyStats', { played: 0, wins: 0, streak: 0, maxStreak: 0, dist: {} });
       const maxD = Math.max(1, ...Object.values(st.dist));
-      const hl = daily.mode === 'daily' && daily.done && daily.won ? daily.guesses.length : -1;
+      const hl = daily.done && daily.won ? daily.guesses.length : -1;
       el.innerHTML = `<h2>Land des Tages – Statistik</h2>
         <div class="stat-grid">
           <div><strong>${st.played}</strong><span>gespielt</span></div>
@@ -615,12 +632,12 @@
       const st = store.get('rankleStats', { games: 0, sum: 0, best: 0, streak: 0, maxStreak: 0 });
       el.innerHTML = `<h2>GeoRankle – Statistik</h2>
         <div class="stat-grid">
-          <div><strong>${st.games}</strong><span>Tagesspiele</span></div>
+          <div><strong>${st.games}</strong><span>Spiele</span></div>
           <div><strong>${st.games ? Math.round(st.sum / st.games) : 0}</strong><span>Ø Punkte</span></div>
           <div><strong>${st.best}</strong><span>Bestwert</span></div>
           <div><strong>${st.streak}</strong><span>Serie</span></div>
         </div>
-        <p class="muted">Nur Tagesspiele zählen für die Statistik.</p>`;
+        <p class="muted">Die Serie zählt nur, wenn du das Rätsel des Tages am selben Tag spielst.</p>`;
     }
   }
 
@@ -628,15 +645,16 @@
   //  Start
   // =================================================================
   loadDaily();
-  newRankle('daily');
+  loadRankle();
   setView(location.hash === '#rankle' ? 'rankle' : 'daily');
 
-  // Tageswechsel bei offener Seite erkennen
+  // Tageswechsel bei offener Seite erkennen: neues Rätsel in die Auswahl aufnehmen
+  let knownMax = maxPuzzle();
   setInterval(() => {
-    if (todayIndex() !== daily.day) {
-      if (daily.mode === 'daily') loadDaily();
-      if (rankle.mode === 'daily') newRankle('daily');
-      toast('Ein neuer Tag, ein neues Rätsel!');
+    if (maxPuzzle() !== knownMax) {
+      knownMax = maxPuzzle();
+      renderDaily(); renderRankle();
+      toast('Ein neuer Tag, ein neues Rätsel #' + knownMax + '!');
     }
   }, 30000);
 })();

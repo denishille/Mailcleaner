@@ -30,11 +30,12 @@
     <div class="view-head">
       <div>
         <h1 class="display"><span id="daily-num" class="num"></span>Land des Tages</h1>
-        <p class="sub" id="daily-sub">Errate das geheime Land in 5 Versuchen.</p>
+        <p class="sub" id="daily-sub">Errate das geheime Land in 5 Versuchen. Alle spielen heute dasselbe Land.</p>
       </div>
-      <div class="mode">
-        <button class="chip-btn active" data-dmode="daily">Täglich</button>
-        <button class="chip-btn" data-dmode="practice">Üben</button>
+      <div class="nav" aria-label="Rätsel-Navigation">
+        <button class="nav-btn" id="daily-prev" aria-label="Vorheriges Rätsel">‹</button>
+        <select class="nav-pick" id="daily-pick" aria-label="Rätsel wählen"></select>
+        <button class="nav-btn" id="daily-next" aria-label="Nächstes Rätsel">›</button>
       </div>
     </div>
 
@@ -63,9 +64,10 @@
         <h1 class="display"><span id="rankle-num" class="num"></span>GeoRankle</h1>
         <p class="sub">Wähle für jedes Land die Kategorie, in der es weltweit am besten abschneidet.</p>
       </div>
-      <div class="mode">
-        <button class="chip-btn active" data-rmode="daily">Täglich</button>
-        <button class="chip-btn" data-rmode="random">Zufällig</button>
+      <div class="nav" aria-label="Rätsel-Navigation">
+        <button class="nav-btn" id="rankle-prev" aria-label="Vorheriges Rätsel">‹</button>
+        <select class="nav-pick" id="rankle-pick" aria-label="Rätsel wählen"></select>
+        <button class="nav-btn" id="rankle-next" aria-label="Nächstes Rätsel">›</button>
       </div>
     </div>
 
@@ -102,7 +104,7 @@
     <button class="modal-close" data-close>✕</button>
     <div id="help-daily">
       <h2>Land des Tages – so geht’s</h2>
-      <p>Jeden Tag gibt es ein geheimes Land, für alle dasselbe. Du hast <strong>5 Versuche</strong>.</p>
+      <p>Jeden Tag kommt ein neues Rätsel dazu, für alle dasselbe. Du hast <strong>5 Versuche</strong>. Über die Pfeile oder die Auswahl kannst du jedes bisherige Rätsel spielen, dein Stand wird pro Rätsel gespeichert.</p>
       <p>Nach jedem Tipp zeigt eine Zeile, wie dein Land im Vergleich zum gesuchten Land liegt. Jede Zelle ist entweder ein Treffer (schwarz) oder daneben (grau):</p>
       <ul>
         <li><strong>Kontinent</strong>, <strong>Küste</strong> (Binnenstaat oder nicht) und <strong>Währung</strong>: Treffer oder daneben.</li>
@@ -111,7 +113,7 @@
         <li><strong>Flaggenfarben</strong> und <strong>Sprachen</strong>: Gemeinsame Einträge werden hervorgehoben. Treffer, wenn alles übereinstimmt.</li>
       </ul>
       <p>Die Eingabe ist tolerant: Akzente sind egal, deutsche und englische Namen sowie gängige Aliasse zählen („Elfenbeinküste“, „Cote d'Ivoire“, „Ivory Coast“).</p>
-      <p>Kleinststaaten mit unter 250.000 Einwohnern sind nie das gesuchte Land, können aber getippt werden. Löse das Rätsel täglich für eine Serie und teile dein Ergebnis als spoilerfreies Emoji-Raster. Ein neues Land gibt es um Mitternacht.</p>
+      <p>Kleinststaaten mit unter 250.000 Einwohnern sind nie das gesuchte Land, können aber getippt werden. Löse das Rätsel des Tages täglich für eine Serie und teile dein Ergebnis als spoilerfreies Emoji-Raster. Ein neues Rätsel gibt es um Mitternacht.</p>
     </div>
     <div id="help-rankle" hidden>
       <h2>GeoRankle – so geht’s</h2>
@@ -119,7 +121,7 @@
       <p>Jede Kategorie kann nur <strong>einmal</strong> pro Spiel gewählt werden. Gute Spieler denken in „sicheren“ und „riskanten“ Kategorien: Eine Kategorie, in der ein Land Rang 1 hat, ist später vielleicht für ein anderes Land noch wichtiger.</p>
       <p><strong>Punkte:</strong> Triffst du die beste noch verfügbare Kategorie, gibt es 100 Punkte. Jeder Rang Abstand zum bestmöglichen Rang kostet Punkte, ein knapper Fehlgriff bringt also immer noch viel. Maximum: 800.</p>
       <p>Achtung bei <strong>Inflation, Arbeitslosigkeit und CO₂</strong>: Rang 1 bedeutet dort „am meisten“, nicht „am besten“. Zählt trotzdem als kleinste Rangnummer.</p>
-      <p>Das Tagesspiel ist für alle gleich, im Zufallsmodus kannst du beliebig oft üben.</p>
+      <p>Jeden Tag kommt ein neues Rätsel dazu, für alle gleich. Über die Pfeile oder die Auswahl kannst du jedes bisherige Rätsel spielen.</p>
     </div>
   </div>
 </div>

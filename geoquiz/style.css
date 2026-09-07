@@ -72,7 +72,12 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
 .view-head h1 { font-size: clamp(2.6rem, 8vw, 5.4rem); }
 .view-head h1 .num { display: block; font-size: .32em; font-weight: 700; letter-spacing: .06em; color: var(--muted); margin-bottom: .35em; font-variation-settings: "wdth" 100; }
 .sub { margin: .8rem 0 0; color: var(--muted); max-width: 46ch; font-size: 1rem; }
-.mode { display: flex; gap: .4rem; }
+.nav { display: flex; align-items: center; gap: .4rem; }
+.nav-btn { border: 0; background: var(--surface); color: var(--text); border-radius: 50%; width: 40px; height: 40px; font-size: 1.4rem; line-height: 1; display: grid; place-items: center; padding-bottom: 3px; transition: background .15s; }
+.nav-btn:hover:not(:disabled) { background: var(--surface2); }
+.nav-btn:disabled { color: #c6c6c8; cursor: not-allowed; }
+.nav-pick { appearance: none; -webkit-appearance: none; border: 1.5px solid var(--line); background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right .9rem center; color: var(--text); padding: .5rem 2.2rem .5rem 1.1rem; border-radius: var(--pill); font-weight: 700; font-size: .95rem; cursor: pointer; min-width: 150px; font-variant-numeric: tabular-nums; transition: border-color .15s; }
+.nav-pick:hover, .nav-pick:focus { border-color: var(--text); outline: none; }
 .chip-btn { border: 1.5px solid var(--line); background: var(--bg); color: var(--text); padding: .45rem 1.05rem; border-radius: var(--pill); font-weight: 600; font-size: .9rem; transition: border-color .15s, background .15s, color .15s; }
 .chip-btn:hover { border-color: var(--text); }
 .chip-btn.active { background: var(--text); border-color: var(--text); color: #fff; }
