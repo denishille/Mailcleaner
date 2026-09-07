@@ -435,7 +435,7 @@
   // =================================================================
   //  GEORANKLE
   // =================================================================
-  const RANKLE_POOL = COUNTRIES.filter(c => c.stats.pop >= MIN_POP && Object.keys(c.ranks || {}).length >= 20);
+  const RANKLE_POOL = COUNTRIES.filter(c => c.stats.pop >= MIN_POP && Object.keys(c.ranks || {}).length >= CATS.length - 3);
 
   const rankle = { num: 0, day: 0, countries: [], cats: [], round: 0, picks: [], used: [] };
   const rankleKey = n => 'rankle.' + n;

@@ -117,26 +117,21 @@ CATEGORIES = [
     ("pop", "Meiste Einwohner", "", "int", "Gesamtbevölkerung, Rang 1 = am meisten"),
     ("area", "Größte Fläche", "km²", "int", "Gesamtfläche, Rang 1 = am größten"),
     ("gdppc", "Höchstes BIP pro Kopf", "$", "money", "Kaufkraftparität, Rang 1 = am höchsten"),
-    ("gdp", "Größtes BIP", "$", "money", "Gesamtes BIP (Kaufkraftparität), Rang 1 = am größten"),
+    ("gdp", "Größtes BIP", "$", "money", "Nominales BIP zu Wechselkursen, Rang 1 = am größten"),
     ("life", "Höchste Lebens\u00aderwartung", "Jahre", "dec1", "Rang 1 = am höchsten"),
     ("medage", "Höchstes Medianalter", "Jahre", "dec1", "Ältestes Land = Rang 1"),
     ("birth", "Höchste Geburtenrate", "‰", "dec1", "Geburten je 1.000 Einwohner, Rang 1 = am höchsten"),
-    ("fert", "Meiste Kinder pro Frau", "Kinder/Frau", "dec2", "Fertilitätsrate, Rang 1 = am meisten"),
     ("popgrowth", "Stärkstes Bevölkerungs\u00adwachstum", "%", "dec2", "Jährliches Wachstum, Rang 1 = am stärksten"),
     ("urban", "Höchste Urbani\u00adsierung", "%", "dec1", "Anteil Stadtbevölkerung, Rang 1 = am höchsten"),
     ("density", "Höchste Bevölkerungs\u00addichte", "Einw./km²", "int", "Einwohner je km², Rang 1 = am dichtesten"),
-    ("forest", "Höchster Waldanteil", "%", "dec1", "Anteil Waldfläche, Rang 1 = am meisten Wald"),
     ("coast", "Längste Küste", "km", "int", "Küstenlänge, Rang 1 = am längsten"),
     ("high", "Höchster Berg", "m", "int", "Höchster Punkt des Landes, Rang 1 = am höchsten"),
     ("borders", "Meiste Nachbarländer", "", "int", "Anzahl Landgrenzen, Rang 1 = am meisten"),
     ("co2", "Höchster CO₂-Ausstoß", "Mt", "dec1", "Gesamtemissionen, Rang 1 = am meisten"),
-    ("renew", "Meiste erneuerbare Energie", "%", "dec1", "Anteil an installierter Stromkapazität, Rang 1 = am meisten"),
     ("internet", "Meiste Internet\u00adnutzer", "%", "dec1", "Anteil der Bevölkerung, Rang 1 = am meisten"),
     ("infl", "Höchste Inflation", "%", "dec1", "Verbraucherpreise, Rang 1 = am höchsten"),
     ("unemp", "Höchste Arbeits\u00adlosigkeit", "%", "dec1", "Rang 1 = am höchsten"),
-    ("exports", "Höchste Exporte", "$", "money", "Waren- und Dienstleistungsexporte, Rang 1 = am meisten"),
     ("mil", "Höchste Militär\u00adausgaben", "% BIP", "dec1", "Anteil am BIP, Rang 1 = am höchsten"),
-    ("obes", "Meiste Übergewichtige", "%", "dec1", "Adipositas-Rate Erwachsene, Rang 1 = am meisten"),
     ("alc", "Höchster Alkohol\u00adkonsum", "l/Kopf", "dec2", "Liter reiner Alkohol pro Kopf und Jahr, Rang 1 = am meisten"),
 ]
 
@@ -213,7 +208,7 @@ def parse_factbook(d):
     s["renew"] = min(100.0, round(sum(parts), 1)) if src else None
     E = "Economy"
     s["gdppc"] = num(latest(get(d, E, "Real GDP per capita")))
-    s["gdp"] = num(latest(get(d, E, "Real GDP (purchasing power parity)")))
+    s["gdp"] = num(get(d, E, "GDP (official exchange rate)", "text"))
     s["infl"] = num(latest(get(d, E, "Inflation rate (consumer prices)")))
     s["unemp"] = num(latest(get(d, E, "Unemployment rate")))
     s["exports"] = num(latest(get(d, E, "Exports")))
