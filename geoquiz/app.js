@@ -621,7 +621,10 @@
   //  GEOFLAG – 10 Flaggen, je vier Länder zur Auswahl
   // =================================================================
   const FLAG_ROUNDS = 10;
-  const FLAG_POOL = COUNTRIES.filter(c => c.stats.pop >= MIN_POP);
+  const FLAG_OPTIONS = 6;
+  // Flaggen, auf denen der Landesname steht (Wappen/Schriftband), werden nicht abgefragt
+  const FLAG_EXCLUDE = new Set(['DOM', 'SLV', 'NIC', 'PRY', 'BOL', 'EGY', 'BRN']);
+  const FLAG_POOL = COUNTRIES.filter(c => c.stats.pop >= MIN_POP && !FLAG_EXCLUDE.has(c.iso3));
   const flagKey = n => 'flag.' + n;
   const flag = { num: 0, day: 0, countries: [], options: [], answers: [], round: 0, locked: false };
 
@@ -633,7 +636,7 @@
       const others = COUNTRIES.filter(o => o.iso3 !== c.iso3);
       const score = o => (o.continent === c.continent ? 2 : 0) + (o.colors.filter(x => c.colors.includes(x)).length >= Math.min(2, c.colors.length) ? 1 : 0);
       const ranked = shuffled(others, rng).sort((a, b) => score(b) - score(a));
-      return shuffled([c.iso3, ...ranked.slice(0, 3).map(o => o.iso3)], rng);
+      return shuffled([c.iso3, ...ranked.slice(0, FLAG_OPTIONS - 1).map(o => o.iso3)], rng);
     });
     return { countries: picked.map(c => c.iso3), options };
   }

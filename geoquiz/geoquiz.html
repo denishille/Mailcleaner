@@ -241,8 +241,8 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
   .flag-quiz { flex-direction: row; align-items: center; gap: .9rem; }
   .flag-quiz .flag-wrap { width: 46%; max-width: 46%; }
   .flag-quiz h2 { font-size: 1.5rem; }
-  .answers { grid-template-columns: 1fr; gap: .45rem; }
-  .ans { padding: .8rem .9rem; font-size: .95rem; }
+  .answers { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; }
+  .ans { padding: .7rem .75rem; font-size: .88rem; line-height: 1.25; overflow-wrap: anywhere; hyphens: auto; }
 }
 
 /* Modals / Toast / Footer -------------------------------------------- */
@@ -1047,7 +1047,10 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
   //  GEOFLAG – 10 Flaggen, je vier Länder zur Auswahl
   // =================================================================
   const FLAG_ROUNDS = 10;
-  const FLAG_POOL = COUNTRIES.filter(c => c.stats.pop >= MIN_POP);
+  const FLAG_OPTIONS = 6;
+  // Flaggen, auf denen der Landesname steht (Wappen/Schriftband), werden nicht abgefragt
+  const FLAG_EXCLUDE = new Set(['DOM', 'SLV', 'NIC', 'PRY', 'BOL', 'EGY', 'BRN']);
+  const FLAG_POOL = COUNTRIES.filter(c => c.stats.pop >= MIN_POP && !FLAG_EXCLUDE.has(c.iso3));
   const flagKey = n => 'flag.' + n;
   const flag = { num: 0, day: 0, countries: [], options: [], answers: [], round: 0, locked: false };
 
@@ -1059,7 +1062,7 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
       const others = COUNTRIES.filter(o => o.iso3 !== c.iso3);
       const score = o => (o.continent === c.continent ? 2 : 0) + (o.colors.filter(x => c.colors.includes(x)).length >= Math.min(2, c.colors.length) ? 1 : 0);
       const ranked = shuffled(others, rng).sort((a, b) => score(b) - score(a));
-      return shuffled([c.iso3, ...ranked.slice(0, 3).map(o => o.iso3)], rng);
+      return shuffled([c.iso3, ...ranked.slice(0, FLAG_OPTIONS - 1).map(o => o.iso3)], rng);
     });
     return { countries: picked.map(c => c.iso3), options };
   }
