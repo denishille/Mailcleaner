@@ -685,7 +685,8 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
     $('#daily-prev').disabled = !neighbour(dl, daily.num, -1);
     $('#daily-next').disabled = !neighbour(dl, daily.num, 1);
     const s = daily.secret;
-    $('#guesses').innerHTML = daily.guesses.map(iso => guessRowHtml(BY_ISO[iso], evalGuess(BY_ISO[iso], s))).join('');
+    // Neueste Tipps oben
+    $('#guesses').innerHTML = daily.guesses.slice().reverse().map(iso => guessRowHtml(BY_ISO[iso], evalGuess(BY_ISO[iso], s))).join('');
     const input = $('#guess-input'), btn = $('#guess-btn');
     input.disabled = daily.done; btn.disabled = daily.done;
     input.value = '';
