@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Geobrudis</title>
-<meta name="description" content="Zwei tägliche Geografie-Rätsel: Errate das geheime Land in 5 Versuchen und finde bei GeoRankle die beste Kategorie jedes Landes.">
+<meta name="description" content="Zwei tägliche Geografie-Rätsel: Errate das geheime Land in 5 Versuchen und finde bei GeoRank die beste Kategorie jedes Landes.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -261,8 +261,8 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
 <header class="top">
   <div class="brand">Geobrudis</div>
   <nav class="tabs" role="tablist">
-    <button class="tab active" data-view="daily" role="tab">Landle</button>
-    <button class="tab" data-view="rankle" role="tab">GeoRankle</button>
+    <button class="tab active" data-view="daily" role="tab">GeoFind</button>
+    <button class="tab" data-view="rankle" role="tab">GeoRank</button>
   </nav>
   <div class="top-actions">
     <button class="icon-btn" id="btn-stats" title="Statistik" aria-label="Statistik"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
@@ -274,7 +274,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
   <section id="view-daily" class="view active">
     <div class="view-head">
       <div>
-        <h1 class="display"><span id="daily-num" class="num"></span>Landle</h1>
+        <h1 class="display"><span id="daily-num" class="num"></span>GeoFind</h1>
         <p class="sub" id="daily-sub">Errate das geheime Land in 5 Versuchen.</p>
       </div>
       <div class="nav" aria-label="Rätsel-Navigation">
@@ -310,7 +310,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
   <section id="view-rankle" class="view">
     <div class="view-head">
       <div>
-        <h1 class="display"><span id="rankle-num" class="num"></span>GeoRankle</h1>
+        <h1 class="display"><span id="rankle-num" class="num"></span>GeoRank</h1>
         <p class="sub">Wähle für jedes Land die der acht Kategorien, in der es am besten abschneidet.</p>
       </div>
       <div class="nav" aria-label="Rätsel-Navigation">
@@ -985,7 +985,7 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
       const st = store.get('dailyStats', { played: 0, wins: 0, streak: 0, maxStreak: 0, dist: {} });
       const maxD = Math.max(1, ...Object.values(st.dist));
       const hl = daily.done && daily.won ? daily.guesses.length : -1;
-      el.innerHTML = `<h2>Landle – Statistik</h2>
+      el.innerHTML = `<h2>GeoFind – Statistik</h2>
         <div class="stat-grid">
           <div><strong>${st.played}</strong><span>gespielt</span></div>
           <div><strong>${st.played ? Math.round(100 * st.wins / st.played) : 0}%</strong><span>gelöst</span></div>
@@ -996,7 +996,7 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
         <div class="dist">${[1, 2, 3, 4, 5].map(n => `<span>${n}</span><div class="bar${n === hl ? ' hl' : ''}" style="width:${Math.max(7, 100 * (st.dist[n] || 0) / maxD)}%">${st.dist[n] || 0}</div>`).join('')}</div>`;
     } else {
       const st = store.get('rankleStats', { games: 0, sum: 0, best: 0, streak: 0, maxStreak: 0 });
-      el.innerHTML = `<h2>GeoRankle – Statistik</h2>
+      el.innerHTML = `<h2>GeoRank – Statistik</h2>
         <div class="stat-grid">
           <div><strong>${st.games}</strong><span>Spiele</span></div>
           <div><strong>${st.games ? Math.round(st.sum / st.games) : 0}</strong><span>Ø Punkte</span></div>

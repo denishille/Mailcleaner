@@ -621,7 +621,7 @@
       const st = store.get('dailyStats', { played: 0, wins: 0, streak: 0, maxStreak: 0, dist: {} });
       const maxD = Math.max(1, ...Object.values(st.dist));
       const hl = daily.done && daily.won ? daily.guesses.length : -1;
-      el.innerHTML = `<h2>Landle – Statistik</h2>
+      el.innerHTML = `<h2>GeoFind – Statistik</h2>
         <div class="stat-grid">
           <div><strong>${st.played}</strong><span>gespielt</span></div>
           <div><strong>${st.played ? Math.round(100 * st.wins / st.played) : 0}%</strong><span>gelöst</span></div>
@@ -632,7 +632,7 @@
         <div class="dist">${[1, 2, 3, 4, 5].map(n => `<span>${n}</span><div class="bar${n === hl ? ' hl' : ''}" style="width:${Math.max(7, 100 * (st.dist[n] || 0) / maxD)}%">${st.dist[n] || 0}</div>`).join('')}</div>`;
     } else {
       const st = store.get('rankleStats', { games: 0, sum: 0, best: 0, streak: 0, maxStreak: 0 });
-      el.innerHTML = `<h2>GeoRankle – Statistik</h2>
+      el.innerHTML = `<h2>GeoRank – Statistik</h2>
         <div class="stat-grid">
           <div><strong>${st.games}</strong><span>Spiele</span></div>
           <div><strong>${st.games ? Math.round(st.sum / st.games) : 0}</strong><span>Ø Punkte</span></div>
