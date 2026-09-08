@@ -793,7 +793,9 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
     return { countries: shuffled(RANKLE_POOL, rng).slice(0, ROUNDS).map(c => c.iso3), cats: shuffled(CATS, rng).slice(0, ROUNDS).map(c => c.key) };
   }
   const rankleCats = () => rankle.cats.map(k => CAT_BY_KEY[k]).filter(Boolean);
-  const catName = k => (CAT_BY_KEY[k] || { name: k }).name;
+  // Namen für Kategorien, die es nicht mehr gibt (alte Spielstände)
+  const LEGACY_CATS = { renew: 'Meiste erneuerbare Energie', forest: 'Höchster Waldanteil', exports: 'Höchste Exporte', obes: 'Meiste Übergewichtige', fert: 'Meiste Kinder pro Frau' };
+  const catName = k => CAT_BY_KEY[k] ? CAT_BY_KEY[k].name : (LEGACY_CATS[k] || k);
   function loadRankle(n) {
     n = clampPuzzle(n);
     rankle.num = n; rankle.day = n - 1;
