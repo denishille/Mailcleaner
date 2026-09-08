@@ -73,16 +73,6 @@
     const t = new Date(n.getFullYear(), n.getMonth(), n.getDate());
     return Math.round((t - EPOCH) / 864e5);
   }
-  function msToMidnight() {
-    const n = new Date();
-    const m = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1);
-    return m - n;
-  }
-  function fmtCountdown(ms) {
-    const s = Math.max(0, Math.floor(ms / 1000));
-    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
-    return [h, m, x].map(v => String(v).padStart(2, '0')).join(':');
-  }
 
   const store = {
     get(k, fallback) { try { const v = localStorage.getItem('geoquiz.' + k); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } },
@@ -96,19 +86,6 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { t.hidden = true; }, 2200);
   }
-  async function copyText(text) {
-    try { await navigator.clipboard.writeText(text); toast('In die Zwischenablage kopiert'); }
-    catch (e) {
-      const ta = document.createElement('textarea');
-      ta.value = text; document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); toast('In die Zwischenablage kopiert'); } catch (e2) { toast('Kopieren nicht möglich'); }
-      ta.remove();
-    }
-  }
-  function shareOrCopy(text) {
-    if (navigator.share) navigator.share({ text }).catch(() => copyText(text));
-    else copyText(text);
-  }
 
   let flagUid = 0;
   function flagSvg(c) {
@@ -118,9 +95,6 @@
       .replace(/id="([^"]+)"/g, (m, id) => `id="${u}${id}"`)
       .replace(/url\(#([^)]+)\)/g, (m, id) => `url(#${u}${id})`)
       .replace(/href="#([^"]+)"/g, (m, id) => `href="#${u}${id}"`);
-  }
-  function shareUrl() {
-    return /^https?:/.test(location.protocol) ? '\n' + location.origin + location.pathname : '';
   }
 
   // ---------------------------------------------------------------- Modals
@@ -275,13 +249,6 @@
     </div>`;
   }
 
-  function emojiGrid() {
-    const s = daily.secret;
-    return daily.guesses.map(iso => {
-      const ev = evalGuess(BY_ISO[iso], s);
-      return HINTS.map(h => (ev[h.key].cls === 'ok' ? '🟩' : '⬛')).join('');
-    }).join('\n');
-  }
 
   function renderDaily() {
     const isToday = daily.num === maxPuzzle();
@@ -299,16 +266,12 @@
     renderDailyResult();
   }
 
-  let countdownTimer;
   function renderDailyResult() {
     const box = $('#daily-result');
-    clearInterval(countdownTimer);
     if (!daily.done) { box.hidden = true; return; }
-    const s = daily.secret, n = daily.guesses.length;
+    const s = daily.secret;
     const isToday = daily.num === maxPuzzle();
     const title = daily.won ? `Richtig! ${s.name}` : `Leider nicht. Es war ${s.name}`;
-    const shareTitle = `Landle #${daily.num}`;
-    const shareText = `${shareTitle} ${daily.won ? n : 'X'}/${MAX_GUESSES}\n${emojiGrid()}${shareUrl()}`;
     box.innerHTML = `
       <div class="big-flag">${flagSvg(s)}</div>
       <h2>${esc(title)}</h2>
@@ -318,19 +281,12 @@
         ${s.stats.gdppc != null ? `<span>BIP/Kopf ${nf0.format(s.stats.gdppc)} $</span>` : ''}
       </div>
       <div class="actions">
-        <button class="primary" id="btn-share-daily">Ergebnis teilen</button>
         ${daily.num > 1 ? `<button class="ghost" id="btn-daily-prev">‹ Rätsel #${daily.num - 1}</button>` : ''}
         ${!isToday ? `<button class="ghost" id="btn-daily-next">Rätsel #${daily.num + 1} ›</button>` : ''}
-      </div>
-      ${isToday ? '<div class="countdown">Nächstes Rätsel in <strong id="cd"></strong></div>' : ''}`;
+      </div>`;
     box.hidden = false;
-    $('#btn-share-daily').addEventListener('click', () => shareOrCopy(shareText));
     const bp = $('#btn-daily-prev'); if (bp) bp.addEventListener('click', () => { loadDaily(daily.num - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
     const bn = $('#btn-daily-next'); if (bn) bn.addEventListener('click', () => { loadDaily(daily.num + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-    if (isToday) {
-      const tick = () => { const el = $('#cd'); if (el) el.textContent = fmtCountdown(msToMidnight()); };
-      tick(); countdownTimer = setInterval(tick, 1000);
-    }
   }
 
   function recordDailyStats(won, n) {
@@ -509,7 +465,6 @@
     return Math.max(0, Math.round(100 * Math.exp(-(chosen - best) / 40)));
   }
   function ptsClass(p) { return p >= 90 ? 'g' : p >= 50 ? 'y' : 'r'; }
-  function ptsEmoji(p) { return p >= 90 ? '🟩' : p >= 50 ? '🟨' : '🟥'; }
   const total = () => rankle.picks.reduce((a, p) => a + p.pts, 0);
 
   function bestAvailable(c) {
@@ -628,16 +583,10 @@
     document.addEventListener('scroll', hideTip, { passive: true });
   })();
 
-  function rankleShareText() {
-    const head = `GeoRankle #${rankle.num}`;
-    const lines = rankle.picks.map(p => `${ptsEmoji(p.pts)} ${BY_ISO[p.iso3].emoji} ${p.pts}`).join('\n');
-    return `${head} · ${total()}/${ROUNDS * 100} Punkte\n${lines}${shareUrl()}`;
-  }
   function renderRankleResult() {
     const box = $('#rankle-result');
     const t = total();
     const verdict = t >= 750 ? 'Weltklasse!' : t >= 600 ? 'Stark!' : t >= 450 ? 'Solide.' : t >= 300 ? 'Ausbaufähig.' : 'Beim nächsten Mal wird’s besser.';
-    const share = rankleShareText();
     box.innerHTML = `
       <h2>${t} / ${ROUNDS * 100} Punkte · ${verdict}</h2>
       <div class="rounds-summary">${rankle.picks.map((p, i) => {
@@ -647,18 +596,11 @@
           <span class="rs-pts ${ptsClass(p.pts)}">${p.pts}</span></div>`;
       }).join('')}</div>
       <div class="actions">
-        <button class="primary" id="btn-share-rankle">Ergebnis teilen</button>
         ${rankle.num > 1 ? `<button class="ghost" id="btn-rankle-prev">‹ Rätsel #${rankle.num - 1}</button>` : ''}
         ${rankle.num < maxPuzzle() ? `<button class="ghost" id="btn-rankle-next">Rätsel #${rankle.num + 1} ›</button>` : ''}
-      </div>
-      ${rankle.num === maxPuzzle() ? '<div class="countdown">Nächstes Rätsel in <strong id="cd2"></strong></div>' : ''}`;
-    $('#btn-share-rankle').addEventListener('click', () => shareOrCopy(share));
+      </div>`;
     const rp = $('#btn-rankle-prev'); if (rp) rp.addEventListener('click', () => { loadRankle(rankle.num - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
     const rn = $('#btn-rankle-next'); if (rn) rn.addEventListener('click', () => { loadRankle(rankle.num + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-    if (rankle.num === maxPuzzle()) {
-      const tick = () => { const el = $('#cd2'); if (el) el.textContent = fmtCountdown(msToMidnight()); };
-      tick(); setInterval(tick, 1000);
-    }
   }
 
   // =================================================================
