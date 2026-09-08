@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Geobrudis</title>
-<meta name="description" content="Zwei tägliche Geografie-Rätsel: Errate das geheime Land in 5 Versuchen und finde bei GeoRank die beste Kategorie jedes Landes.">
+<meta name="description" content="Drei tägliche Geografie-Rätsel: Errate das geheime Land in 5 Versuchen und finde bei GeoRank die beste Kategorie jedes Landes.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,6 +17,7 @@
   <nav class="tabs" role="tablist">
     <button class="tab active" data-view="daily" role="tab">GeoFind</button>
     <button class="tab" data-view="rankle" role="tab">GeoRank</button>
+    <button class="tab" data-view="flag" role="tab">GeoFlag</button>
   </nav>
   <div class="top-actions">
     <button class="icon-btn" id="btn-stats" title="Statistik" aria-label="Statistik"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
@@ -98,6 +99,43 @@
     </div>
 
     <div id="rankle-result" class="result" hidden></div>
+  </section>
+
+  <!-- ================= GeoFlag ================= -->
+  <section id="view-flag" class="view">
+    <div class="view-head">
+      <div>
+        <h1 class="display"><span id="flag-num" class="num"></span>GeoFlag</h1>
+        <p class="sub">Welches Land gehört zur Flagge?</p>
+      </div>
+      <div class="nav" aria-label="Rätsel-Navigation">
+        <select class="nav-pick nav-filter" id="flag-filter" aria-label="Filter">
+          <option value="all">Alle</option>
+          <option value="solved">Gelöst</option>
+          <option value="open">Ungelöst</option>
+        </select>
+        <button class="nav-btn" id="flag-prev" aria-label="Vorheriges Rätsel">‹</button>
+        <select class="nav-pick" id="flag-pick" aria-label="Rätsel wählen"></select>
+        <button class="nav-btn" id="flag-next" aria-label="Nächstes Rätsel">›</button>
+      </div>
+    </div>
+
+    <div id="flag-board">
+      <div class="rankle-status">
+        <div class="rounds" id="flag-rounds"></div>
+        <div class="score"><strong id="flag-score">0</strong>/ 10 richtig</div>
+      </div>
+      <div class="flag-card flag-quiz">
+        <div class="flag-wrap" id="flag-quiz-wrap"></div>
+        <div class="flag-meta">
+          <h2 id="flag-quiz-title" class="display">Runde 1</h2>
+          <p class="muted" id="flag-quiz-sub"></p>
+        </div>
+      </div>
+      <div id="flag-answers" class="answers"></div>
+    </div>
+
+    <div id="flag-result" class="result" hidden></div>
   </section>
 </main>
 

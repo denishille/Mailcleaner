@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Geobrudis</title>
-<meta name="description" content="Zwei tägliche Geografie-Rätsel: Errate das geheime Land in 5 Versuchen und finde bei GeoRank die beste Kategorie jedes Landes.">
+<meta name="description" content="Drei tägliche Geografie-Rätsel: Errate das geheime Land in 5 Versuchen und finde bei GeoRank die beste Kategorie jedes Landes.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -221,6 +221,30 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
 .rs .rs-pts { margin-left: auto; font-weight: 900; font-size: 1.3rem; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .rs-pts.g { color: var(--text); } .rs-pts.y { color: var(--volt-deep); } .rs-pts.r { color: var(--red); }
 
+/* GeoFlag ------------------------------------------------------------- */
+.answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.ans { background: var(--bg); border: 1.5px solid var(--line); border-radius: var(--r); padding: .95rem 1rem; text-align: left; font-weight: 700; font-size: 1rem; transition: border-color .15s, background .15s, color .15s; }
+.ans:hover:not(:disabled) { border-color: var(--text); }
+.ans:disabled { cursor: default; }
+.ans.right { background: var(--text); border-color: var(--text); color: #fff; }
+.ans.wrong { background: var(--red); border-color: var(--red); color: #fff; }
+.ans.dim { color: var(--miss-text); background: var(--surface); border-color: transparent; }
+.flag-quiz .flag-wrap { background: #fff; }
+.fr { background: var(--bg); border-radius: var(--r); padding: .7rem .8rem; display: flex; gap: .7rem; align-items: center; }
+.fr .mini-flag { width: 44px; height: 33px; border-radius: 3px; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+.fr .mini-flag svg { width: 100%; height: 100%; display: block; }
+.fr .fr-body { font-size: .85rem; line-height: 1.3; min-width: 0; color: var(--muted); }
+.fr .fr-body strong { display: block; color: var(--text); }
+.fr .fr-mark { margin-left: auto; font-weight: 900; font-size: 1.2rem; }
+.fr-mark.g { color: var(--text); } .fr-mark.r { color: var(--red); }
+@media (max-width: 600px) {
+  .flag-quiz { flex-direction: row; align-items: center; gap: .9rem; }
+  .flag-quiz .flag-wrap { width: 46%; max-width: 46%; }
+  .flag-quiz h2 { font-size: 1.5rem; }
+  .answers { grid-template-columns: 1fr; gap: .45rem; }
+  .ans { padding: .8rem .9rem; font-size: .95rem; }
+}
+
 /* Modals / Toast / Footer -------------------------------------------- */
 .modal { position: fixed; inset: 0; background: rgba(17,17,17,.45); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 1rem; }
 .modal-box { background: var(--bg); border-radius: 24px; padding: 2rem; max-width: 580px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 30px 80px rgba(0,0,0,.25); }
@@ -263,6 +287,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
   <nav class="tabs" role="tablist">
     <button class="tab active" data-view="daily" role="tab">GeoFind</button>
     <button class="tab" data-view="rankle" role="tab">GeoRank</button>
+    <button class="tab" data-view="flag" role="tab">GeoFlag</button>
   </nav>
   <div class="top-actions">
     <button class="icon-btn" id="btn-stats" title="Statistik" aria-label="Statistik"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
@@ -344,6 +369,43 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
     </div>
 
     <div id="rankle-result" class="result" hidden></div>
+  </section>
+
+  <!-- ================= GeoFlag ================= -->
+  <section id="view-flag" class="view">
+    <div class="view-head">
+      <div>
+        <h1 class="display"><span id="flag-num" class="num"></span>GeoFlag</h1>
+        <p class="sub">Welches Land gehört zur Flagge?</p>
+      </div>
+      <div class="nav" aria-label="Rätsel-Navigation">
+        <select class="nav-pick nav-filter" id="flag-filter" aria-label="Filter">
+          <option value="all">Alle</option>
+          <option value="solved">Gelöst</option>
+          <option value="open">Ungelöst</option>
+        </select>
+        <button class="nav-btn" id="flag-prev" aria-label="Vorheriges Rätsel">‹</button>
+        <select class="nav-pick" id="flag-pick" aria-label="Rätsel wählen"></select>
+        <button class="nav-btn" id="flag-next" aria-label="Nächstes Rätsel">›</button>
+      </div>
+    </div>
+
+    <div id="flag-board">
+      <div class="rankle-status">
+        <div class="rounds" id="flag-rounds"></div>
+        <div class="score"><strong id="flag-score">0</strong>/ 10 richtig</div>
+      </div>
+      <div class="flag-card flag-quiz">
+        <div class="flag-wrap" id="flag-quiz-wrap"></div>
+        <div class="flag-meta">
+          <h2 id="flag-quiz-title" class="display">Runde 1</h2>
+          <p class="muted" id="flag-quiz-sub"></p>
+        </div>
+      </div>
+      <div id="flag-answers" class="answers"></div>
+    </div>
+
+    <div id="flag-result" class="result" hidden></div>
   </section>
 </main>
 
@@ -532,8 +594,8 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
   const neighbour = (list, current, dir) => dir < 0
     ? list.filter(n => n < current)[0]
     : list.filter(n => n > current).slice(-1)[0];
-  const filters = { daily: store.get('dailyFilter', 'all'), rankle: store.get('rankleFilter', 'all') };
-  $('#daily-filter').value = filters.daily; $('#rankle-filter').value = filters.rankle;
+  const filters = { daily: store.get('dailyFilter', 'all'), rankle: store.get('rankleFilter', 'all'), flag: store.get('flagFilter', 'all') };
+  $('#daily-filter').value = filters.daily; $('#rankle-filter').value = filters.rankle; $('#flag-filter').value = filters.flag;
 
   $('#daily-prev').addEventListener('click', () => { const n = neighbour(puzzleList(dailyKey, filters.daily), daily.num, -1); if (n) loadDaily(n); });
   $('#daily-next').addEventListener('click', () => { const n = neighbour(puzzleList(dailyKey, filters.daily), daily.num, 1); if (n) loadDaily(n); });
@@ -982,6 +1044,135 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
   }
 
   // =================================================================
+  //  GEOFLAG – 10 Flaggen, je vier Länder zur Auswahl
+  // =================================================================
+  const FLAG_ROUNDS = 10;
+  const FLAG_POOL = COUNTRIES.filter(c => c.stats.pop >= MIN_POP);
+  const flagKey = n => 'flag.' + n;
+  const flag = { num: 0, day: 0, countries: [], options: [], answers: [], round: 0, locked: false };
+
+  function buildFlag(seed) {
+    const rng = mulberry32(seed * 31 + 7);
+    const picked = shuffled(FLAG_POOL, rng).slice(0, FLAG_ROUNDS);
+    const options = picked.map(c => {
+      // Ablenker: gleicher Kontinent und gemeinsame Flaggenfarben bevorzugt, sonst gleicher Kontinent, sonst beliebig
+      const others = COUNTRIES.filter(o => o.iso3 !== c.iso3);
+      const score = o => (o.continent === c.continent ? 2 : 0) + (o.colors.filter(x => c.colors.includes(x)).length >= Math.min(2, c.colors.length) ? 1 : 0);
+      const ranked = shuffled(others, rng).sort((a, b) => score(b) - score(a));
+      return shuffled([c.iso3, ...ranked.slice(0, 3).map(o => o.iso3)], rng);
+    });
+    return { countries: picked.map(c => c.iso3), options };
+  }
+  function loadFlag(n) {
+    n = clampPuzzle(n);
+    flag.num = n; flag.day = n - 1;
+    store.set('flagLast', n);
+    const built = buildFlag(flag.day);
+    flag.countries = built.countries; flag.options = built.options;
+    flag.answers = []; flag.round = 0; flag.locked = false;
+    const saved = store.get(flagKey(n), null);
+    const finished = saved && saved.answers && saved.answers.length >= FLAG_ROUNDS;
+    const same = saved && JSON.stringify(saved.countries) === JSON.stringify(flag.countries);
+    if (finished || same) {
+      if (finished && !same) { flag.countries = saved.countries; flag.options = saved.options || flag.options; }
+      flag.answers = saved.answers; flag.round = saved.answers.length;
+    }
+    renderFlag();
+  }
+  function saveFlag() {
+    const done = flag.answers.length >= FLAG_ROUNDS;
+    store.set(flagKey(flag.num), { day: flag.day, countries: flag.countries, options: flag.options, answers: flag.answers, done, won: done });
+  }
+  const flagScore = () => flag.answers.filter((a, i) => a === flag.countries[i]).length;
+
+  $('#flag-prev').addEventListener('click', () => { const n = neighbour(puzzleList(flagKey, filters.flag), flag.num, -1); if (n) loadFlag(n); });
+  $('#flag-next').addEventListener('click', () => { const n = neighbour(puzzleList(flagKey, filters.flag), flag.num, 1); if (n) loadFlag(n); });
+  $('#flag-pick').addEventListener('change', e => loadFlag(+e.target.value));
+  $('#flag-filter').addEventListener('change', e => {
+    filters.flag = e.target.value; store.set('flagFilter', filters.flag);
+    const list = puzzleList(flagKey, filters.flag);
+    if (list.length && !list.includes(flag.num)) loadFlag(list[0]); else renderFlag();
+  });
+
+  function answerFlag(iso) {
+    if (flag.locked || flag.round >= FLAG_ROUNDS) return;
+    flag.locked = true;
+    const correct = flag.countries[flag.round];
+    flag.answers.push(iso);
+    saveFlag();
+    $$('#flag-answers .ans').forEach(b => {
+      b.disabled = true;
+      if (b.dataset.iso === correct) b.classList.add('right');
+      else if (b.dataset.iso === iso) b.classList.add('wrong');
+      else b.classList.add('dim');
+    });
+    $('#flag-score').textContent = flagScore();
+    if (flag.answers.length >= FLAG_ROUNDS) recordFlagStats();
+    setTimeout(() => { flag.round++; flag.locked = false; renderFlag(); }, iso === correct ? 600 : 1200);
+  }
+  function recordFlagStats() {
+    const st = store.get('flagStats', { games: 0, sum: 0, best: 0, lastDay: null, streak: 0, maxStreak: 0, done: {} });
+    st.done = st.done || {};
+    if (st.done[flag.num]) return;
+    st.done[flag.num] = 1;
+    const t = flagScore();
+    st.games++; st.sum += t; st.best = Math.max(st.best, t);
+    if (flag.num === maxPuzzle() && st.lastDay !== flag.day) {
+      st.streak = st.lastDay === flag.day - 1 ? st.streak + 1 : 1;
+      st.maxStreak = Math.max(st.maxStreak, st.streak);
+      st.lastDay = flag.day;
+    }
+    store.set('flagStats', st);
+  }
+
+  function renderFlag() {
+    $('#flag-num').textContent = 'Rätsel #' + flag.num;
+    const fl = fillPicker($('#flag-pick'), flag.num, flagKey, filters.flag);
+    $('#flag-prev').disabled = !neighbour(fl, flag.num, -1);
+    $('#flag-next').disabled = !neighbour(fl, flag.num, 1);
+    $('#flag-score').textContent = flagScore();
+    $('#flag-rounds').innerHTML = Array.from({ length: FLAG_ROUNDS }, (_, i) => {
+      const a = flag.answers[i];
+      const cls = a != null ? (a === flag.countries[i] ? 'g' : 'r') : (i === flag.round ? 'cur' : '');
+      return `<div class="round-dot ${cls}" title="Runde ${i + 1}">${a != null ? (a === flag.countries[i] ? '✓' : '✗') : i + 1}</div>`;
+    }).join('');
+
+    const finished = flag.round >= FLAG_ROUNDS;
+    $('#flag-board').hidden = finished;
+    $('#flag-result').hidden = !finished;
+    if (finished) { renderFlagResult(); return; }
+
+    const c = BY_ISO[flag.countries[flag.round]];
+    $('#flag-quiz-wrap').innerHTML = flagSvg(c);
+    $('#flag-quiz-title').textContent = 'Runde ' + (flag.round + 1);
+    $('#flag-quiz-sub').textContent = 'Welches Land ist das?';
+    $('#flag-answers').innerHTML = flag.options[flag.round].map(iso =>
+      `<button class="ans" data-iso="${iso}">${esc(BY_ISO[iso].name)}</button>`).join('');
+    $$('#flag-answers .ans').forEach(b => b.addEventListener('click', () => answerFlag(b.dataset.iso)));
+  }
+  function renderFlagResult() {
+    const box = $('#flag-result');
+    const t = flagScore();
+    const list = puzzleList(flagKey, filters.flag);
+    const fPrev = neighbour(list, flag.num, -1), fNext = neighbour(list, flag.num, 1);
+    const verdict = t === 10 ? 'Perfekt!' : t >= 8 ? 'Stark!' : t >= 6 ? 'Solide.' : t >= 4 ? 'Ausbaufähig.' : 'Beim nächsten Mal wird’s besser.';
+    box.innerHTML = `
+      <h2>${t} / ${FLAG_ROUNDS} richtig · ${verdict}</h2>
+      <div class="rounds-summary">${flag.countries.map((iso, i) => {
+        const c = BY_ISO[iso], a = flag.answers[i], ok = a === iso;
+        return `<div class="fr"><span class="mini-flag">${flagSvg(c)}</span>
+          <div class="fr-body"><strong>${i + 1}. ${esc(c.name)}</strong>${ok ? 'richtig' : 'Dein Tipp: ' + esc(BY_ISO[a] ? BY_ISO[a].name : '–')}</div>
+          <span class="fr-mark ${ok ? 'g' : 'r'}">${ok ? '✓' : '✗'}</span></div>`;
+      }).join('')}</div>
+      <div class="actions">
+        ${fPrev ? `<button class="ghost" id="btn-flag-prev">‹ Rätsel #${fPrev}</button>` : ''}
+        ${fNext ? `<button class="ghost" id="btn-flag-next">Rätsel #${fNext} ›</button>` : ''}
+      </div>`;
+    const fp = $('#btn-flag-prev'); if (fp) fp.addEventListener('click', () => { loadFlag(fPrev); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    const fn = $('#btn-flag-next'); if (fn) fn.addEventListener('click', () => { loadFlag(fNext); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+
+  // =================================================================
   //  Statistik
   // =================================================================
   function renderStats() {
@@ -999,6 +1190,16 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
         </div>
         <h2>Verteilung der Versuche</h2>
         <div class="dist">${[1, 2, 3, 4, 5].map(n => `<span>${n}</span><div class="bar${n === hl ? ' hl' : ''}" style="width:${Math.max(7, 100 * (st.dist[n] || 0) / maxD)}%">${st.dist[n] || 0}</div>`).join('')}</div>`;
+    } else if (view === 'flag') {
+      const st = store.get('flagStats', { games: 0, sum: 0, best: 0, streak: 0, maxStreak: 0 });
+      el.innerHTML = `<h2>GeoFlag – Statistik</h2>
+        <div class="stat-grid">
+          <div><strong>${st.games}</strong><span>Spiele</span></div>
+          <div><strong>${st.games ? (st.sum / st.games).toFixed(1) : 0}</strong><span>Ø richtig</span></div>
+          <div><strong>${st.best}</strong><span>Bestwert</span></div>
+          <div><strong>${st.streak}</strong><span>Serie</span></div>
+        </div>
+        <p class="muted">Die Serie zählt nur, wenn du das Rätsel des Tages am selben Tag spielst.</p>`;
     } else {
       const st = store.get('rankleStats', { games: 0, sum: 0, best: 0, streak: 0, maxStreak: 0 });
       el.innerHTML = `<h2>GeoRank – Statistik</h2>
@@ -1017,14 +1218,15 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
   // =================================================================
   loadDaily(store.get('dailyLast', null) || undefined);
   loadRankle(store.get('rankleLast', null) || undefined);
-  setView(location.hash === '#rankle' ? 'rankle' : 'daily');
+  loadFlag(store.get('flagLast', null) || undefined);
+  setView(location.hash === '#rankle' ? 'rankle' : location.hash === '#flag' ? 'flag' : 'daily');
 
   // Tageswechsel bei offener Seite erkennen: neues Rätsel in die Auswahl aufnehmen
   let knownMax = maxPuzzle();
   setInterval(() => {
     if (maxPuzzle() !== knownMax) {
       knownMax = maxPuzzle();
-      renderDaily(); renderRankle();
+      renderDaily(); renderRankle(); renderFlag();
       toast('Ein neuer Tag, ein neues Rätsel #' + knownMax + '!');
     }
   }, 30000);

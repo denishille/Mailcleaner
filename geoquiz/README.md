@@ -28,6 +28,12 @@ Pages). Alles läuft lokal, Fortschritt und Serien liegen im `localStorage`.
   `100 · e^(−(Rang − Bestrang)/40)`. Maximum 800.
 - Jeden Tag ein neues Rätsel, alle bisherigen bleiben spielbar.
 
+## GeoFlag
+
+- 10 Runden, je eine Flagge und vier Länder zur Auswahl. Ablenker kommen
+  bevorzugt vom selben Kontinent mit ähnlichen Flaggenfarben.
+- Sofortige Rückmeldung, Ergebnis mit allen zehn Flaggen, Statistik.
+
 ## Daten neu erzeugen
 
 `data.js` (196 Länder: UN-Mitglieder plus Taiwan und Kosovo) wird aus offenen
