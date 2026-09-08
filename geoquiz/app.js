@@ -286,9 +286,7 @@
   function renderDaily() {
     const isToday = daily.num === maxPuzzle();
     $('#daily-num').textContent = 'Rätsel #' + daily.num;
-    $('#daily-sub').textContent = isToday
-      ? 'Errate das geheime Land in 5 Versuchen. Alle spielen heute dasselbe Land.'
-      : 'Errate das geheime Land in 5 Versuchen. Jedes Rätsel hat sein eigenes Land.';
+    $('#daily-sub').textContent = 'Errate das geheime Land in 5 Versuchen.';
     const dl = fillPicker($('#daily-pick'), daily.num, dailyKey, filters.daily);
     $('#daily-prev').disabled = !neighbour(dl, daily.num, -1);
     $('#daily-next').disabled = !neighbour(dl, daily.num, 1);

@@ -275,7 +275,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
     <div class="view-head">
       <div>
         <h1 class="display"><span id="daily-num" class="num"></span>Land des Tages</h1>
-        <p class="sub" id="daily-sub">Errate das geheime Land in 5 Versuchen. Alle spielen heute dasselbe Land.</p>
+        <p class="sub" id="daily-sub">Errate das geheime Land in 5 Versuchen.</p>
       </div>
       <div class="nav" aria-label="Rätsel-Navigation">
         <select class="nav-pick nav-filter" id="daily-filter" aria-label="Filter">
@@ -650,9 +650,7 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
   function renderDaily() {
     const isToday = daily.num === maxPuzzle();
     $('#daily-num').textContent = 'Rätsel #' + daily.num;
-    $('#daily-sub').textContent = isToday
-      ? 'Errate das geheime Land in 5 Versuchen. Alle spielen heute dasselbe Land.'
-      : 'Errate das geheime Land in 5 Versuchen. Jedes Rätsel hat sein eigenes Land.';
+    $('#daily-sub').textContent = 'Errate das geheime Land in 5 Versuchen.';
     const dl = fillPicker($('#daily-pick'), daily.num, dailyKey, filters.daily);
     $('#daily-prev').disabled = !neighbour(dl, daily.num, -1);
     $('#daily-next').disabled = !neighbour(dl, daily.num, 1);
