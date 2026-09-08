@@ -398,8 +398,8 @@
   const rankle = { num: 0, day: 0, countries: [], cats: [], round: 0, picks: [], used: [] };
   const rankleKey = n => 'rankle.' + n;
 
-  // 8 Länder + 8 Kategorien, sodass jedes Land unter den 8 Kategorien eine
-  // eigene beste hat. So ist die Bestpunktzahl immer erreichbar.
+  // 8 Länder + 8 Kategorien, sodass jedes Land in genau einer Kategorie das
+  // beste der 8 Länder ist (und diese Kategorie zugleich seine beste unter den 8 ist).
   function buildRankle(seed) {
     for (let attempt = 0; attempt < 50; attempt++) {
       const rng = mulberry32(seed + attempt * 7919);
@@ -407,24 +407,24 @@
       for (const c of shuffled(RANKLE_POOL, rng)) {
         if (picked.length >= ROUNDS) break;
         const used = new Set(picked.map(p => p.cat));
-        let best = null;
-        for (const cat of CATS) {
-          if (used.has(cat.key)) continue;
-          const r = c.ranks[cat.key];
-          if (r != null && (!best || r < best.rank)) best = { cat: cat.key, rank: r };
-        }
-        if (!best) continue;
-        // Keine bereits gewählte Kategorie darf für das neue Land besser sein …
-        if (picked.some(p => c.ranks[p.cat] == null || c.ranks[p.cat] < best.rank)) continue;
-        // … und die neue Kategorie darf für kein bisheriges Land besser sein als dessen eigene.
-        if (picked.some(p => { const r = BY_ISO[p.iso3].ranks[best.cat]; return r == null || r < BY_ISO[p.iso3].ranks[p.cat]; })) continue;
-        picked.push({ iso3: c.iso3, cat: best.cat });
+        const cands = CATS.filter(cat => !used.has(cat.key) && c.ranks[cat.key] != null
+          // c schlägt alle bisherigen Länder in dieser Kategorie …
+          && picked.every(p => { const r = BY_ISO[p.iso3].ranks[cat.key]; return r != null && r > c.ranks[cat.key]; })
+          // … und schlägt kein bisheriges Land in dessen eigener Kategorie
+          && picked.every(p => { const r = c.ranks[p.cat]; return r != null && r > BY_ISO[p.iso3].ranks[p.cat]; }));
+        if (!cands.length) continue;
+        cands.sort((x, y) => c.ranks[x.key] - c.ranks[y.key]);
+        const k = cands[0].key;
+        // Die Kategorie muss zugleich die beste von c unter allen gewählten sein, und für kein bisheriges Land besser als dessen eigene
+        if (picked.some(p => c.ranks[p.cat] <= c.ranks[k])) continue;
+        if (picked.some(p => BY_ISO[p.iso3].ranks[k] <= BY_ISO[p.iso3].ranks[p.cat])) continue;
+        picked.push({ iso3: c.iso3, cat: k });
       }
       if (picked.length === ROUNDS) {
         return { countries: picked.map(p => p.iso3), cats: shuffled(picked.map(p => p.cat), rng) };
       }
     }
-    // Notnagel (sollte mit 196 Ländern und 24 Kategorien nie greifen)
+    // Notnagel (sollte mit 196 Ländern nie greifen)
     const rng = mulberry32(seed);
     return { countries: shuffled(RANKLE_POOL, rng).slice(0, ROUNDS).map(c => c.iso3), cats: shuffled(CATS, rng).slice(0, ROUNDS).map(c => c.key) };
   }
@@ -462,21 +462,28 @@
     if (list.length && !list.includes(rankle.num)) loadRankle(list[0]); else renderRankle();
   });
 
-  function points(chosen, best) {
-    if (chosen === best) return 100;
-    return Math.max(0, Math.round(100 * Math.exp(-(chosen - best) / 40)));
+  // Punkte: Perzentil des gewählten Landes zwischen bestem und schlechtestem der 8 Länder in dieser Kategorie
+  function points(c, key) {
+    const ranks = rankle.countries.map(i => BY_ISO[i].ranks[key]).filter(r => r != null);
+    const best = Math.min(...ranks), worst = Math.max(...ranks), r = c.ranks[key];
+    if (r == null) return 0;
+    if (r <= best) return 100;
+    if (worst === best) return 100;
+    return Math.max(0, Math.round(100 * (worst - r) / (worst - best)));
   }
   function ptsClass(p) { return p >= 90 ? 'g' : p >= 50 ? 'y' : 'r'; }
   const total = () => rankle.picks.reduce((a, p) => a + p.pts, 0);
 
+  // Die Kategorie, in der c das beste der 8 Länder ist (Notfall: beste Kategorie von c)
   function bestAvailable(c) {
-    let best = null;
-    // Beste Kategorie unter allen 8 des Rätsels, auch wenn sie schon verbraucht ist
+    let fallback = null;
     for (const cat of rankleCats()) {
-      const r = c.ranks && c.ranks[cat.key];
-      if (r != null && (best === null || r < best.rank)) best = { cat: cat.key, rank: r };
+      const r = c.ranks[cat.key];
+      if (r == null) continue;
+      if (rankle.countries.every(i => i === c.iso3 || BY_ISO[i].ranks[cat.key] == null || BY_ISO[i].ranks[cat.key] > r)) return { cat: cat.key, rank: r };
+      if (fallback === null || r < fallback.rank) fallback = { cat: cat.key, rank: r };
     }
-    return best;
+    return fallback;
   }
 
   function chooseCategory(key) {
@@ -485,7 +492,7 @@
     const rank = c.ranks[key];
     if (rank == null || rankle.used.includes(key)) return;
     const best = bestAvailable(c);
-    const pts = points(rank, best.rank);
+    const pts = points(c, key);
     rankle.picks.push({ iso3: c.iso3, cat: key, rank, bestCat: best.cat, bestRank: best.rank, pts });
     rankle.used.push(key);
     rankle.round++;

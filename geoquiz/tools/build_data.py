@@ -194,7 +194,7 @@ def parse_factbook(d):
     s["forest"] = num(get(d, "Geography", "Land use", "forest", "text"))
     s["coast"] = num(get(d, "Geography", "Coastline", "text"))
     hp = get(d, "Geography", "Elevation", "highest point", "text") or ""
-    m = re.search(r"(-?[\d,]+(?:\.\d+)?)\s*m\b", hp)
+    m = re.search(r"(-?[\d,]+(?:\.\d+)?)\s*(?:m\b|$)", hp.strip())
     s["high"] = float(m.group(1).replace(",", "")) if m else None
     s["internet"] = num(get(d, "Communications", "Internet users", "percent of population", "text"))
     s["co2"] = num(get(d, "Environment", "Carbon dioxide emissions", "total emissions", "text"))
@@ -258,6 +258,18 @@ def main():
         if code in fips2iso:
             fb[fips2iso[code]] = json.load(open(f, encoding="utf-8"))
 
+    # Landgrenzen: abhängige Gebiete ihrem Staat zuordnen (Französisch-Guayana -> Frankreich,
+    # Gibraltar -> UK, Hongkong/Macau -> China), nur Pool-Länder zählen, Symmetrie sicherstellen
+    TERRITORY = {"GUF": "FRA", "GIB": "GBR", "HKG": "CHN", "MAC": "CHN", "SXM": "NLD", "MAF": "FRA"}
+    pool_codes = {c["cca3"] for c in pool}
+    borders = {}
+    for c in pool:
+        bs = {TERRITORY.get(b, b) for b in c.get("borders", [])}
+        borders[c["cca3"]] = {b for b in bs if b in pool_codes and b != c["cca3"]}
+    for code_a, bs in list(borders.items()):
+        for code_b in bs:
+            borders[code_b].add(code_a)
+
     countries = []
     for c in pool:
         iso = c["cca3"]
@@ -265,7 +277,7 @@ def main():
         if iso not in fb:
             print("kein Factbook-Eintrag:", iso, c["name"]["common"])
         stats["area"] = float(c["area"])
-        stats["borders"] = float(len(c.get("borders", [])))
+        stats["borders"] = float(len(borders[iso]))
         if "pop" in stats:
             stats["density"] = round(stats["pop"] / stats["area"], 1)
         cc = "xk" if iso == "UNK" else c["cca2"].lower()
@@ -289,7 +301,7 @@ def main():
             "continent": continent(c),
             "subregion": c["subregion"],
             "landlocked": bool(c["landlocked"]),
-            "borders": c.get("borders", []),
+            "borders": sorted(borders[iso]),
             "languages": langs,
             "currency": cur,
             "currencyName": ", ".join(currency_name(k, v["name"]) for k, v in sorted(c["currencies"].items())),
