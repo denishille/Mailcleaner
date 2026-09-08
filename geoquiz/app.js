@@ -134,6 +134,7 @@
   function loadDaily(n) {
     n = clampPuzzle(n);
     daily.num = n; daily.day = n - 1;
+    store.set('dailyLast', n);
     daily.secret = dailySecretFor(daily.day);
     let saved = store.get(dailyKey(n), null);
     if (!saved) { const old = store.get('daily', null); if (old && old.day === daily.day) saved = old; }
@@ -270,7 +271,8 @@
     const box = $('#daily-result');
     if (!daily.done) { box.hidden = true; return; }
     const s = daily.secret;
-    const isToday = daily.num === maxPuzzle();
+    const dList = puzzleList(dailyKey, filters.daily);
+    const dPrev = neighbour(dList, daily.num, -1), dNext = neighbour(dList, daily.num, 1);
     const title = daily.won ? `Richtig! ${s.name}` : `Leider nicht. Es war ${s.name}`;
     box.innerHTML = `
       <div class="big-flag">${flagSvg(s)}</div>
@@ -281,12 +283,12 @@
         ${s.stats.gdppc != null ? `<span>BIP/Kopf ${nf0.format(s.stats.gdppc)} $</span>` : ''}
       </div>
       <div class="actions">
-        ${daily.num > 1 ? `<button class="ghost" id="btn-daily-prev">‹ Rätsel #${daily.num - 1}</button>` : ''}
-        ${!isToday ? `<button class="ghost" id="btn-daily-next">Rätsel #${daily.num + 1} ›</button>` : ''}
+        ${dPrev ? `<button class="ghost" id="btn-daily-prev">‹ Rätsel #${dPrev}</button>` : ''}
+        ${dNext ? `<button class="ghost" id="btn-daily-next">Rätsel #${dNext} ›</button>` : ''}
       </div>`;
     box.hidden = false;
-    const bp = $('#btn-daily-prev'); if (bp) bp.addEventListener('click', () => { loadDaily(daily.num - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-    const bn = $('#btn-daily-next'); if (bn) bn.addEventListener('click', () => { loadDaily(daily.num + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    const bp = $('#btn-daily-prev'); if (bp) bp.addEventListener('click', () => { loadDaily(dPrev); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    const bn = $('#btn-daily-next'); if (bn) bn.addEventListener('click', () => { loadDaily(dNext); window.scrollTo({ top: 0, behavior: 'smooth' }); });
   }
 
   function recordDailyStats(won, n) {
@@ -435,6 +437,7 @@
   function loadRankle(n) {
     n = clampPuzzle(n);
     rankle.num = n; rankle.day = n - 1;
+    store.set('rankleLast', n);
     const built = buildRankle(rankle.day * 1000003 + 42);
     rankle.countries = built.countries; rankle.cats = built.cats;
     rankle.round = 0; rankle.picks = []; rankle.used = [];
@@ -594,6 +597,8 @@
 
   function renderRankleResult() {
     const box = $('#rankle-result');
+    const rList = puzzleList(rankleKey, filters.rankle);
+    const rPrev = neighbour(rList, rankle.num, -1), rNext = neighbour(rList, rankle.num, 1);
     const t = total();
     const verdict = t >= 750 ? 'Weltklasse!' : t >= 600 ? 'Stark!' : t >= 450 ? 'Solide.' : t >= 300 ? 'Ausbaufähig.' : 'Beim nächsten Mal wird’s besser.';
     box.innerHTML = `
@@ -605,11 +610,11 @@
           <span class="rs-pts ${ptsClass(p.pts)}">${p.pts}</span></div>`;
       }).join('')}</div>
       <div class="actions">
-        ${rankle.num > 1 ? `<button class="ghost" id="btn-rankle-prev">‹ Rätsel #${rankle.num - 1}</button>` : ''}
-        ${rankle.num < maxPuzzle() ? `<button class="ghost" id="btn-rankle-next">Rätsel #${rankle.num + 1} ›</button>` : ''}
+        ${rPrev ? `<button class="ghost" id="btn-rankle-prev">‹ Rätsel #${rPrev}</button>` : ''}
+        ${rNext ? `<button class="ghost" id="btn-rankle-next">Rätsel #${rNext} ›</button>` : ''}
       </div>`;
-    const rp = $('#btn-rankle-prev'); if (rp) rp.addEventListener('click', () => { loadRankle(rankle.num - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-    const rn = $('#btn-rankle-next'); if (rn) rn.addEventListener('click', () => { loadRankle(rankle.num + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    const rp = $('#btn-rankle-prev'); if (rp) rp.addEventListener('click', () => { loadRankle(rPrev); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    const rn = $('#btn-rankle-next'); if (rn) rn.addEventListener('click', () => { loadRankle(rNext); window.scrollTo({ top: 0, behavior: 'smooth' }); });
   }
 
   // =================================================================
@@ -646,8 +651,8 @@
   // =================================================================
   //  Start
   // =================================================================
-  { const l = puzzleList(dailyKey, filters.daily); loadDaily(l.length ? l[0] : undefined); }
-  { const l = puzzleList(rankleKey, filters.rankle); loadRankle(l.length ? l[0] : undefined); }
+  loadDaily(store.get('dailyLast', null) || undefined);
+  loadRankle(store.get('rankleLast', null) || undefined);
   setView(location.hash === '#rankle' ? 'rankle' : 'daily');
 
   // Tageswechsel bei offener Seite erkennen: neues Rätsel in die Auswahl aufnehmen
