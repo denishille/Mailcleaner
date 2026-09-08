@@ -307,7 +307,7 @@
     const s = daily.secret, n = daily.guesses.length;
     const isToday = daily.num === maxPuzzle();
     const title = daily.won ? `Richtig! ${s.name}` : `Leider nicht. Es war ${s.name}`;
-    const shareTitle = `Land des Tages #${daily.num}`;
+    const shareTitle = `Landle #${daily.num}`;
     const shareText = `${shareTitle} ${daily.won ? n : 'X'}/${MAX_GUESSES}\n${emojiGrid()}${shareUrl()}`;
     box.innerHTML = `
       <div class="big-flag">${flagSvg(s)}</div>
@@ -670,7 +670,7 @@
       const st = store.get('dailyStats', { played: 0, wins: 0, streak: 0, maxStreak: 0, dist: {} });
       const maxD = Math.max(1, ...Object.values(st.dist));
       const hl = daily.done && daily.won ? daily.guesses.length : -1;
-      el.innerHTML = `<h2>Land des Tages – Statistik</h2>
+      el.innerHTML = `<h2>Landle – Statistik</h2>
         <div class="stat-grid">
           <div><strong>${st.played}</strong><span>gespielt</span></div>
           <div><strong>${st.played ? Math.round(100 * st.wins / st.played) : 0}%</strong><span>gelöst</span></div>

@@ -261,7 +261,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
 <header class="top">
   <div class="brand">Geobrudis</div>
   <nav class="tabs" role="tablist">
-    <button class="tab active" data-view="daily" role="tab">Land des Tages</button>
+    <button class="tab active" data-view="daily" role="tab">Landle</button>
     <button class="tab" data-view="rankle" role="tab">GeoRankle</button>
   </nav>
   <div class="top-actions">
@@ -274,7 +274,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
   <section id="view-daily" class="view active">
     <div class="view-head">
       <div>
-        <h1 class="display"><span id="daily-num" class="num"></span>Land des Tages</h1>
+        <h1 class="display"><span id="daily-num" class="num"></span>Landle</h1>
         <p class="sub" id="daily-sub">Errate das geheime Land in 5 Versuchen.</p>
       </div>
       <div class="nav" aria-label="Rätsel-Navigation">
@@ -671,7 +671,7 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
     const s = daily.secret, n = daily.guesses.length;
     const isToday = daily.num === maxPuzzle();
     const title = daily.won ? `Richtig! ${s.name}` : `Leider nicht. Es war ${s.name}`;
-    const shareTitle = `Land des Tages #${daily.num}`;
+    const shareTitle = `Landle #${daily.num}`;
     const shareText = `${shareTitle} ${daily.won ? n : 'X'}/${MAX_GUESSES}\n${emojiGrid()}${shareUrl()}`;
     box.innerHTML = `
       <div class="big-flag">${flagSvg(s)}</div>
@@ -1034,7 +1034,7 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
       const st = store.get('dailyStats', { played: 0, wins: 0, streak: 0, maxStreak: 0, dist: {} });
       const maxD = Math.max(1, ...Object.values(st.dist));
       const hl = daily.done && daily.won ? daily.guesses.length : -1;
-      el.innerHTML = `<h2>Land des Tages – Statistik</h2>
+      el.innerHTML = `<h2>Landle – Statistik</h2>
         <div class="stat-grid">
           <div><strong>${st.played}</strong><span>gespielt</span></div>
           <div><strong>${st.played ? Math.round(100 * st.wins / st.played) : 0}%</strong><span>gelöst</span></div>
