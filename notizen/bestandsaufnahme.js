@@ -519,6 +519,7 @@ function run(argv) {
   const Notes = Application('Notes');
 
   const ordnerListe = [];
+  const kontoNamen = [];
   for (const konto of Notes.accounts()) {
     let kontoName;
     try {
@@ -526,10 +527,25 @@ function run(argv) {
     } catch (e) {
       continue;
     }
+    kontoNamen.push(kontoName);
     sammleOrdner(konto, '', kontoName, ordnerListe);
   }
+  melde(`Konten in Notizen: ${kontoNamen.join(', ') || 'keine'}`);
+
+  // Nur "Auf meinem Mac" heisst fast immer: iCloud-Notizen sind auf diesem
+  // Rechner aus. Dann sieht die App die Notizen vom Handy gar nicht.
+  const nurLokal = kontoNamen.every(n => ['auf meinem mac', 'on my mac'].includes(schluessel(n)));
+  if (kontoNamen.length === 0 || nurLokal) {
+    melde('');
+    melde('Kein iCloud-Konto dabei. Die Notizen vom iPhone liegen in iCloud — damit');
+    melde('die Notizen-App auf dem Mac sie sieht, muss iCloud für Notizen an sein:');
+    melde('  Systemeinstellungen > [dein Name] > iCloud > Notizen einschalten,');
+    melde('  dann Notizen öffnen und warten, bis die iCloud-Ordner erscheinen.');
+    melde('Danach dieses Skript noch einmal laufen lassen.');
+    melde('');
+  }
   if (ordnerListe.length === 0) {
-    melde('Keine Ordner gefunden. Ist in Notizen ein Konto eingerichtet?');
+    melde('Keine Ordner gefunden.');
     return;
   }
 
