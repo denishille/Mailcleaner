@@ -210,6 +210,24 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
 .rs .rs-pts { margin-left: auto; font-weight: 900; font-size: 1.3rem; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .rs-pts.g { color: var(--text); } .rs-pts.y { color: var(--volt-deep); } .rs-pts.r { color: var(--red); }
 
+/* Weltranking-Panel im GeoRank-Ergebnis --------------------------------- */
+.rank-link { border: 0; background: none; padding: 0; font: inherit; color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; cursor: pointer; text-align: left; }
+.rank-link:hover, .rank-link.open { text-decoration-color: var(--text); color: var(--text); }
+.rank-link.open { font-weight: 700; }
+.rank-panel { background: var(--bg); border-radius: var(--r); padding: .9rem 1rem; margin: .2rem 0 1rem; animation: rise .25s cubic-bezier(.2,.7,.2,1); }
+.rank-panel-head { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.rank-panel-head strong { font-size: 1.05rem; }
+.rank-panel-head .muted { font-size: .8rem; }
+.rank-panel-head .icon-btn.small { margin-left: auto; width: 32px; height: 32px; font-size: .9rem; }
+.rank-list { max-height: 360px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; font-size: .88rem; font-variant-numeric: tabular-nums; }
+.rank-row { display: grid; grid-template-columns: 3.4rem 1fr auto; gap: .6rem; padding: .35rem .7rem; border-bottom: 1px solid var(--line); align-items: center; }
+.rank-row:last-child { border-bottom: 0; }
+.rank-no { font-weight: 800; color: var(--muted); }
+.rank-val { color: var(--muted); white-space: nowrap; }
+.rank-row.peer { background: var(--surface); }
+.rank-row.me { background: var(--text); color: #fff; font-weight: 700; }
+.rank-row.me .rank-no, .rank-row.me .rank-val { color: #fff; }
+
 /* GeoFlag ------------------------------------------------------------- */
 .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
 .ans { background: var(--bg); border: 1.5px solid var(--line); border-radius: var(--r); padding: .95rem 1rem; text-align: left; font-weight: 700; font-size: 1rem; transition: border-color .15s, background .15s, color .15s; }

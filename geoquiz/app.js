@@ -610,15 +610,39 @@
       <div class="rounds-summary">${rankle.picks.map((p, i) => {
         const c = BY_ISO[p.iso3];
         return `<div class="rs"><span class="mini-flag">${flagSvg(c)}</span>
-          <div class="rs-body"><strong>${i + 1}. ${esc(c.name)}</strong>${esc(catName(p.cat))} #${p.rank}${p.pts < 100 ? `<br><span class="muted">Beste: ${esc(catName(p.bestCat))} #${p.bestRank}</span>` : ''}</div>
+          <div class="rs-body"><strong>${i + 1}. ${esc(c.name)}</strong><button class="rank-link" data-cat="${p.cat}" data-iso="${p.iso3}">${esc(catName(p.cat))} #${p.rank}</button>${p.pts < 100 ? `<br><span class="muted">Beste: <button class="rank-link" data-cat="${p.bestCat}" data-iso="${p.iso3}">${esc(catName(p.bestCat))} #${p.bestRank}</button></span>` : ''}</div>
           <span class="rs-pts ${ptsClass(p.pts)}">${p.pts}</span></div>`;
       }).join('')}</div>
+      <div id="rank-panel" class="rank-panel" hidden></div>
       <div class="actions">
         ${rPrev ? `<button class="ghost" id="btn-rankle-prev">‹ Rätsel #${rPrev}</button>` : ''}
         ${rNext ? `<button class="ghost" id="btn-rankle-next">Rätsel #${rNext} ›</button>` : ''}
       </div>`;
     const rp = $('#btn-rankle-prev'); if (rp) rp.addEventListener('click', () => { loadRankle(rPrev); window.scrollTo({ top: 0, behavior: 'smooth' }); });
     const rn = $('#btn-rankle-next'); if (rn) rn.addEventListener('click', () => { loadRankle(rNext); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    // Klick auf eine Kategorie blendet das komplette Weltranking ein (nochmal klicken: aus)
+    $$('#rankle-result .rank-link').forEach(b => b.addEventListener('click', () => toggleRankPanel(b.dataset.cat, b.dataset.iso, b)));
+  }
+  function toggleRankPanel(key, iso, btn) {
+    const panel = $('#rank-panel');
+    const cat = CAT_BY_KEY[key];
+    const same = !panel.hidden && panel.dataset.cat === key && panel.dataset.iso === iso;
+    $$('#rankle-result .rank-link').forEach(b => b.classList.remove('open'));
+    if (same || !cat) { panel.hidden = true; panel.innerHTML = ''; return; }
+    btn.classList.add('open');
+    panel.dataset.cat = key; panel.dataset.iso = iso;
+    const inPuzzle = new Set(rankle.countries);
+    const rows = COUNTRIES.filter(c => c.ranks[key] != null).sort((a, b) => a.ranks[key] - b.ranks[key]);
+    panel.innerHTML = `
+      <div class="rank-panel-head"><strong>${esc(cat.name)}</strong><span class="muted">${esc(cat.desc)} · ${rows.length} Länder</span>
+        <button class="icon-btn small" id="rank-panel-close" aria-label="Schließen">✕</button></div>
+      <div class="rank-list">${rows.map(c => `<div class="rank-row${c.iso3 === iso ? ' me' : inPuzzle.has(c.iso3) ? ' peer' : ''}" ${c.iso3 === iso ? 'id="rank-me"' : ''}>
+        <span class="rank-no">#${c.ranks[key]}</span><span class="rank-name">${esc(c.name)}</span><span class="rank-val">${fmtStat(cat, c.stats[key])}</span></div>`).join('')}</div>`;
+    panel.hidden = false;
+    $('#rank-panel-close').addEventListener('click', () => toggleRankPanel(key, iso, btn));
+    const me = $('#rank-me'), list = $('.rank-list', panel);
+    if (me && list) list.scrollTop = Math.max(0, me.offsetTop - list.clientHeight / 2 + me.offsetHeight / 2);
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   // =================================================================
