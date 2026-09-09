@@ -231,7 +231,10 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
 .rank-panel-head strong { font-size: 1.05rem; }
 .rank-panel-head .muted { font-size: .8rem; }
 .rank-panel-head .icon-btn.small { margin-left: auto; width: 32px; height: 32px; font-size: .9rem; }
-.rank-list { max-height: 360px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; font-size: .88rem; font-variant-numeric: tabular-nums; }
+.rank-search { width: 100%; font-size: 16px; padding: .55rem .9rem; margin-bottom: .5rem; border-radius: var(--pill); border: 1.5px solid transparent; background: var(--surface); color: var(--text); outline: none; }
+.rank-search:focus { background: var(--bg); border-color: var(--text); }
+.rank-search::-webkit-search-decoration, .rank-search::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+.rank-list { position: relative; max-height: 360px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; font-size: .88rem; font-variant-numeric: tabular-nums; }
 .rank-row { display: grid; grid-template-columns: 3.4rem 1fr auto; gap: .6rem; padding: .35rem .7rem; border-bottom: 1px solid var(--line); align-items: center; }
 .rank-row:last-child { border-bottom: 0; }
 .rank-no { font-weight: 800; color: var(--muted); }
@@ -1081,12 +1084,25 @@ window.GEO_DATA = {"generated":"CIA World Factbook / mledoze-countries / flag-ic
     panel.innerHTML = `
       <div class="rank-panel-head"><strong>${esc(cat.name)}</strong><span class="muted">${esc(cat.desc)} · ${rows.length} Länder</span>
         <button class="icon-btn small" id="rank-panel-close" aria-label="Schließen">✕</button></div>
-      <div class="rank-list">${rows.map(c => `<div class="rank-row${c.iso3 === iso ? ' me' : inPuzzle.has(c.iso3) ? ' peer' : ''}" ${c.iso3 === iso ? 'id="rank-me"' : ''}>
+      <input class="rank-search" id="rank-search" type="search" placeholder="Land suchen …" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <div class="rank-list" id="rank-list">${rows.map(c => `<div class="rank-row${c.iso3 === iso ? ' me' : inPuzzle.has(c.iso3) ? ' peer' : ''}" data-n="${esc(norm(c.name + ' ' + c.en))}" ${c.iso3 === iso ? 'id="rank-me"' : ''}>
         <span class="rank-no">#${c.ranks[key]}</span><span class="rank-name">${esc(c.name)}</span><span class="rank-val">${fmtStat(cat, c.stats[key])}</span></div>`).join('')}</div>`;
     panel.hidden = false;
     $('#rank-panel-close').addEventListener('click', () => toggleRankPanel(key, iso, btn));
-    const me = $('#rank-me'), list = $('.rank-list', panel);
-    if (me && list) list.scrollTop = Math.max(0, me.offsetTop - list.clientHeight / 2 + me.offsetHeight / 2);
+    const list = $('#rank-list');
+    // Angeklicktes Land in die Mitte der Liste scrollen (nach dem Layout, deshalb im nächsten Frame)
+    const centerMe = () => {
+      const me = $('#rank-me');
+      if (!me) return;
+      list.scrollTop = Math.max(0, me.offsetTop - list.clientHeight / 2 + me.offsetHeight / 2);
+    };
+    requestAnimationFrame(() => { centerMe(); setTimeout(centerMe, 120); });
+    // Suche: filtert die Liste, leeres Feld zeigt wieder alles und zentriert das Land
+    $('#rank-search').addEventListener('input', e => {
+      const q = norm(e.target.value);
+      $$('.rank-row', list).forEach(r => { r.hidden = q ? !r.dataset.n.includes(q) : false; });
+      if (!q) centerMe(); else list.scrollTop = 0;
+    });
     panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 

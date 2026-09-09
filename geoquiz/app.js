@@ -636,12 +636,25 @@
     panel.innerHTML = `
       <div class="rank-panel-head"><strong>${esc(cat.name)}</strong><span class="muted">${esc(cat.desc)} · ${rows.length} Länder</span>
         <button class="icon-btn small" id="rank-panel-close" aria-label="Schließen">✕</button></div>
-      <div class="rank-list">${rows.map(c => `<div class="rank-row${c.iso3 === iso ? ' me' : inPuzzle.has(c.iso3) ? ' peer' : ''}" ${c.iso3 === iso ? 'id="rank-me"' : ''}>
+      <input class="rank-search" id="rank-search" type="search" placeholder="Land suchen …" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <div class="rank-list" id="rank-list">${rows.map(c => `<div class="rank-row${c.iso3 === iso ? ' me' : inPuzzle.has(c.iso3) ? ' peer' : ''}" data-n="${esc(norm(c.name + ' ' + c.en))}" ${c.iso3 === iso ? 'id="rank-me"' : ''}>
         <span class="rank-no">#${c.ranks[key]}</span><span class="rank-name">${esc(c.name)}</span><span class="rank-val">${fmtStat(cat, c.stats[key])}</span></div>`).join('')}</div>`;
     panel.hidden = false;
     $('#rank-panel-close').addEventListener('click', () => toggleRankPanel(key, iso, btn));
-    const me = $('#rank-me'), list = $('.rank-list', panel);
-    if (me && list) list.scrollTop = Math.max(0, me.offsetTop - list.clientHeight / 2 + me.offsetHeight / 2);
+    const list = $('#rank-list');
+    // Angeklicktes Land in die Mitte der Liste scrollen (nach dem Layout, deshalb im nächsten Frame)
+    const centerMe = () => {
+      const me = $('#rank-me');
+      if (!me) return;
+      list.scrollTop = Math.max(0, me.offsetTop - list.clientHeight / 2 + me.offsetHeight / 2);
+    };
+    requestAnimationFrame(() => { centerMe(); setTimeout(centerMe, 120); });
+    // Suche: filtert die Liste, leeres Feld zeigt wieder alles und zentriert das Land
+    $('#rank-search').addEventListener('input', e => {
+      const q = norm(e.target.value);
+      $$('.rank-row', list).forEach(r => { r.hidden = q ? !r.dataset.n.includes(q) : false; });
+      if (!q) centerMe(); else list.scrollTop = 0;
+    });
     panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
