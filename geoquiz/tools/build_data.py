@@ -236,6 +236,8 @@ def main():
     ap.add_argument("--flags", required=True)
     ap.add_argument("--colors", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--distances", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "distances.json"),
+                    help="Grenze-zu-Grenze-Matrix aus build_distances.js (optional)")
     a = ap.parse_args()
 
     raw = json.load(open(a.countries, encoding="utf-8"))
@@ -322,10 +324,19 @@ def main():
 
     countries.sort(key=lambda c: c["name"])
     out = {
-        "generated": "CIA World Factbook / mledoze-countries / flag-icons",
+        "generated": "CIA World Factbook / mledoze-countries / flag-icons / Natural Earth",
         "categories": [dict(zip(("key", "name", "unit", "fmt", "desc"), cat)) for cat in CATEGORIES],
         "countries": countries,
     }
+    # Entfernungsmatrix (Grenze zu Grenze) anhängen, falls vorhanden und passend
+    if os.path.exists(a.distances):
+        dm = json.load(open(a.distances, encoding="utf-8"))
+        if set(dm["order"]) == {c["iso3"] for c in countries}:
+            out["distOrder"] = dm["order"]
+            out["dist"] = dm["km"]
+            print("Entfernungsmatrix:", len(dm["order"]), "Länder")
+        else:
+            print("Entfernungsmatrix passt nicht zur Länderliste, übersprungen")
     with open(a.out, "w", encoding="utf-8") as f:
         f.write("window.GEO_DATA = ")
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))

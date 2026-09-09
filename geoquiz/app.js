@@ -193,10 +193,13 @@
     { key: 'colors', lbl: 'Flagge', wide: true },
     { key: 'languages', lbl: 'Sprachen', wide: true },
   ];
-  function geo(a, b) {
-    // Luftlinie (Haversine) zwischen zwei Koordinaten
+  // Entfernung Grenze zu Grenze aus der vorberechneten Matrix (Natural-Earth-Umrisse),
+  // Notfall: Luftlinie zwischen den Landeskoordinaten
+  const DIST_IDX = D.distOrder ? Object.fromEntries(D.distOrder.map((k, i) => [k, i])) : null;
+  function geo(g, s) {
+    if (DIST_IDX && DIST_IDX[g.iso3] != null && DIST_IDX[s.iso3] != null) return { km: D.dist[DIST_IDX[g.iso3]][DIST_IDX[s.iso3]] };
     const R = 6371, toRad = d => d * Math.PI / 180;
-    const [la1, lo1] = a.map(toRad), [la2, lo2] = b.map(toRad);
+    const [la1, lo1] = g.latlng.map(toRad), [la2, lo2] = s.latlng.map(toRad);
     const h = Math.sin((la2 - la1) / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin((lo2 - lo1) / 2) ** 2;
     return { km: 2 * R * Math.asin(Math.sqrt(h)) };
   }
@@ -216,7 +219,7 @@
   function evalGuess(g, s) {
     const out = {};
     out.continent = { cls: g.continent === s.continent ? 'ok' : 'miss', html: esc(g.continent) };
-    const d = geo(g.latlng, s.latlng);
+    const d = geo(g, s);
     out.distance = g.iso3 === s.iso3
       ? { cls: 'ok', html: '0 km' }
       : { cls: 'miss', html: nf0.format(Math.round(d.km / 10) * 10) + ' km' };
