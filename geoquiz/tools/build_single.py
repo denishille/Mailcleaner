@@ -28,6 +28,13 @@ if logo:
 else:
     html = re.sub(r'\n\s*<img class="brand-logo"[^>]*>', "", html)
     print("kein logo.* gefunden, Schriftzug bleibt")
+for _name, _mime in (("apple-touch-icon.png", "image/png"), ("icon-512.png", "image/png"), ("icon.svg", "image/svg+xml")):
+    _path = os.path.join(here, _name)
+    if os.path.exists(_path):
+        _uri = "data:%s;base64,%s" % (_mime, base64.b64encode(open(_path, "rb").read()).decode())
+        html = html.replace('href="%s"' % _name, 'href="%s"' % _uri)
+html = re.sub(r'\n\s*<link rel="manifest"[^>]*>', "", html)
+
 html = html.replace('<link rel="stylesheet" href="style.css">', "<style>\n" + read("style.css") + "\n</style>")
 html = html.replace('<script src="data.js"></script>', "<script>\n" + read("data.js") + "\n</script>")
 html = html.replace('<script src="app.js"></script>', "<script>\n" + read("app.js") + "\n</script>")
