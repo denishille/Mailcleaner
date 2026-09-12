@@ -11,7 +11,23 @@ import re
 here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 read = lambda n: open(os.path.join(here, n), encoding="utf-8").read()
 
+import base64
+import glob
+
 html = read("index.html")
+
+# Logo (falls vorhanden) als data-URI einbetten, sonst das img-Tag entfernen
+LOGO_MIME = {".svg": "image/svg+xml", ".png": "image/png", ".webp": "image/webp", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}
+logo = next((f for ext in (".svg", ".png", ".webp", ".jpg", ".jpeg")
+             for f in glob.glob(os.path.join(here, "logo" + ext))), None)
+if logo:
+    mime = LOGO_MIME[os.path.splitext(logo)[1].lower()]
+    b64 = base64.b64encode(open(logo, "rb").read()).decode()
+    html = html.replace('src="logo.svg"', 'src="data:%s;base64,%s"' % (mime, b64))
+    print("Logo eingebettet:", os.path.basename(logo), os.path.getsize(logo) // 1024, "KB")
+else:
+    html = re.sub(r'\n\s*<img class="brand-logo"[^>]*>', "", html)
+    print("kein logo.* gefunden, Schriftzug bleibt")
 html = html.replace('<link rel="stylesheet" href="style.css">', "<style>\n" + read("style.css") + "\n</style>")
 html = html.replace('<script src="data.js"></script>', "<script>\n" + read("data.js") + "\n</script>")
 html = html.replace('<script src="app.js"></script>', "<script>\n" + read("app.js") + "\n</script>")

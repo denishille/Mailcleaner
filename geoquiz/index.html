@@ -13,7 +13,10 @@
 </head>
 <body>
 <header class="top">
-  <div class="brand">Geobrudis</div>
+  <div class="brand">
+    <img class="brand-logo" src="logo.svg" alt="Geobrudis" onload="this.closest('.brand').classList.add('has-logo')" onerror="this.remove()">
+    <span class="brand-text">Geobrudis</span>
+  </div>
   <nav class="tabs" role="tablist">
     <button class="tab active" data-view="daily" role="tab">GeoFind</button>
     <button class="tab" data-view="rankle" role="tab">GeoRank</button>

@@ -65,6 +65,15 @@ node tools/build_distances.js /tmp/ne50.geojson data.js tools/distances.json
 python3 tools/build_data.py ... --out data.js
 ```
 
+## Logo statt Schriftzug
+
+Eine Datei `geoquiz/logo.svg` (auch `.png`, `.webp`, `.jpg`) ablegen, dann
+zeigt die Kopfzeile das Logo anstelle des Schriftzugs „Geobrudis“. Ohne Datei
+bleibt der Schriftzug. Höhe wird automatisch auf 30 px skaliert (26 px auf dem
+Handy), am besten ein SVG oder ein PNG mit mindestens 120 px Höhe und
+transparentem Hintergrund. `tools/build_single.py` bettet das Logo als
+data-URI in `geoquiz.html` ein.
+
 ## Hosten (Cloudflare Pages)
 
 Kein Build nötig, alles ist statisch. Zwei Wege:

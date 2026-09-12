@@ -151,11 +151,13 @@
   }
   // Filter: alle / gelöst / ungelöst. Liefert die passenden Rätselnummern absteigend.
   const solvedState = (key, n) => { const st = store.get(key(n), null); return !!(st && st.done && st.won); };
+  // "gemacht" = abgeschlossen, egal ob gelöst oder verfehlt
+  const doneState = (key, n) => { const st = store.get(key(n), null); return !!(st && st.done); };
   function puzzleList(key, filter) {
     const max = maxPuzzle();
     const all = Array.from({ length: max }, (_, i) => max - i);
     if (filter === 'solved') return all.filter(n => solvedState(key, n));
-    if (filter === 'open') return all.filter(n => !solvedState(key, n));
+    if (filter === 'open') return all.filter(n => !doneState(key, n));
     return all;
   }
   function fillPicker(sel, current, key, filter) {
