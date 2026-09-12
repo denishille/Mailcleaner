@@ -54,6 +54,9 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .brand { display: flex; align-items: center; font-weight: 900; font-size: 1.25rem; letter-spacing: -.04em; text-transform: uppercase; white-space: nowrap; font-variation-settings: "wdth" 88; }
 /* Liegt geoquiz/logo.svg (oder .png/.webp) vor, ersetzt es den Schriftzug */
 .brand-logo { display: none; height: 30px; width: auto; max-width: 180px; }
+.brand-mark { display: flex; margin-right: .45rem; }
+.brand-mark svg { display: block; }
+.brand.has-logo .brand-mark { display: none; }
 .brand.has-logo .brand-logo { display: block; }
 .brand.has-logo .brand-text { display: none; }
 .tabs { display: flex; gap: 1.6rem; margin: 0 auto; }
@@ -277,6 +280,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 4rem
   .top { height: auto; flex-wrap: wrap; gap: .6rem 1rem; padding: calc(.7rem + env(safe-area-inset-top, 0px)) 1rem .7rem; }
   .brand { order: 1; }
   .brand-logo { height: 26px; max-width: 150px; }
+  .brand-mark svg { width: 23px; height: 23px; }
   .top-actions { order: 2; margin-left: auto; }
   .tabs { order: 3; width: 100%; margin: 0; gap: 1.4rem; }
   .view-head { padding-top: 1.6rem; }
